@@ -1,9 +1,3 @@
-<!-- <style scoped>
-        .container {
-            max-width: 1200px;
-        }
-</style> -->
-
 <script setup>
 // API Call
 const config = useRuntimeConfig(); // Get the runtime config
@@ -17,6 +11,7 @@ const fetchStoriedId = async () => {
     try {
         const response = await $fetch(`${apiUrl}/api/stories/${storyId}`);
         storiesId.value = response?.data || []; // Assuming your API response has a `data` field
+        console.log("NI STORIES ID",storiesId.value);
     } catch (error) {
         console.error('Error fetching stories:', error);
     }

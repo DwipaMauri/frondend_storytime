@@ -1,3 +1,41 @@
+<script setup>
+import { ref } from "vue";
+
+// Kontrol visibilitas notifikasi
+const isNotificationVisible = ref(false);
+
+// Fungsi untuk menampilkan notifikasi
+const showNotification = () => {
+    isNotificationVisible.value = true;
+
+    // Sembunyikan notifikasi setelah 3 detik
+    setTimeout(() => {
+        isNotificationVisible.value = false;
+    }, 3000);
+};
+
+// Data reaktif untuk menyimpan URL gambar
+const profilePicture = ref(
+    "https://i.pinimg.com/originals/39/88/71/398871ed89c875c647c3cf0184f24c3a.jpg"
+);
+
+// Fungsi untuk mengunggah gambar
+const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            profilePicture.value = reader.result; // Set URL gambar baru
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+// Fungsi untuk memicu input file
+const triggerFileInput = () => {
+    document.getElementById("file-input").click();
+};
+</script>
 <template>
     <div class="min-h-screen bg-gray-50 flex justify-center items-center px-4">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 space-y-6">
@@ -126,42 +164,3 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { ref } from "vue";
-
-// Kontrol visibilitas notifikasi
-const isNotificationVisible = ref(false);
-
-// Fungsi untuk menampilkan notifikasi
-const showNotification = () => {
-    isNotificationVisible.value = true;
-
-    // Sembunyikan notifikasi setelah 3 detik
-    setTimeout(() => {
-        isNotificationVisible.value = false;
-    }, 3000);
-};
-
-// Data reaktif untuk menyimpan URL gambar
-const profilePicture = ref(
-    "https://i.pinimg.com/originals/39/88/71/398871ed89c875c647c3cf0184f24c3a.jpg"
-);
-
-// Fungsi untuk mengunggah gambar
-const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            profilePicture.value = reader.result; // Set URL gambar baru
-        };
-        reader.readAsDataURL(file);
-    }
-};
-
-// Fungsi untuk memicu input file
-const triggerFileInput = () => {
-    document.getElementById("file-input").click();
-};
-</script>

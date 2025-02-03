@@ -100,7 +100,7 @@ const updateProfile = async () => {
 };
 
 // Get Story by User
-const userStories = ref([]); 
+const userStories = ref([]);
 const getStoryByUser = async () => {
   try {
     const response = await $fetch(`${apiUrl}/api/user/stories`, {
@@ -157,7 +157,7 @@ watch(isModalOpen, (newValue) => {
         <!-- Profile Image -->
         <img :src="getImageUrl(user?.profile_image)" alt="Profile Image"
           class="rounded-full object-cover mx-auto sm:mx-0"
-          style="margin-left: 100px; margin-top: 8px; width: 150px; height: 150px; background-color: #f0f0f0; padding: 20px;" />
+          style="margin-left: 100px; margin-top: 8px; width: 150px; height: 150px; padding: 20px;" />
         <!-- Profile Details -->
         <div class="flex-grow">
           <h1 class="text-2xl font-bold" style="color: #222222; margin-top: 30px; margin-left: 20px">
@@ -343,34 +343,7 @@ watch(isModalOpen, (newValue) => {
 
       <!-- User Stories -->
       <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20">
-        <!-- Loop through the user stories -->
-        <div v-if="userStories.length === 0" class="text-center text-gray-500">
-          <p>No stories found.</p>
-        </div>
-        <div v-else v-for="story in userStories" :key="story.id" class="rounded-lg bg-white flex flex-col max-w-sm group">
-          <!-- Card Image -->
-          <img :src="story.content_image" alt="Card Image"
-            class="rounded-t-lg group-hover:opacity-75 transition-opacity duration-300" />
-          <!-- Card Content -->
-          <div class="p-1 flex flex-col flex-grow mb-2">
-            <h2 class="text-lg font-semibold mt-2 group-hover:text-[#466543] transition-colors duration-300">
-              {{ story.title }}
-            </h2>
-            <div class="mt-4">
-              <p class="text-gray-600 text-sm flex-grow">
-                {{ story.content }}
-              </p>
-            </div>
-            <div class="mt-5 flex justify-between items-center">
-              <span class="bg-[#F0F5ED] text-[#466543] px-3 py-1 rounded-md">
-                {{ story.category }}
-              </span>
-              <span class="text-normal font-light text-gray-900">
-                {{ story.created_at | formatDate }}
-              </span>
-            </div>
-          </div>
-        </div>
+        <ProfileStory :userStories="userStories" />
       </div>
     </div>
 

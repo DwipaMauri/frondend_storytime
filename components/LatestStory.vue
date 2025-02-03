@@ -45,7 +45,7 @@ const formatDate = (dateString) => {
 
     <!-- Scrollable horizontal list -->
     <div v-else class="overflow-x-auto scrollbar-hide whitespace-nowrap">
-        <div class="flex gap-2">
+        <div class="flex gap-4">
             <div v-for="story in stories" :key="story.id"
                 class="min-w-[420px] max-w-[500px] overflow-hidden flex-shrink-0 rounded-lg">
 
@@ -53,34 +53,34 @@ const formatDate = (dateString) => {
                 <div class="relative">
                     <nuxt-link :to="`/detail/${story.id}`">
                         <img :src="getImageUrl(story.content_images[0])" alt="Story Image"
-                            class="w-full h-100 object-cover group-hover:opacity-75 transition-opacity duration-300 rounded-t-lg" />
+                            class="w-full h-100 object-cover hover:opacity-75 transition-opacity duration-300 rounded-t-lg" />
                     </nuxt-link>
 
                     <!-- Bookmark Icon -->
                     <div
-                        class="absolute bottom-6 right-2 bg-green-500 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer hover:bg-green-600 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v16l7-5 7 5V3z" />
+                        class="absolute bottom-5 right-5 bg-green-800 w-12 h-12 flex items-center justify-center rounded-full cursor-pointer hover:bg-[#3B4F3A] transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
+                            <path fill="#fff"
+                                d="M6 19.5V5.616q0-.691.463-1.153T7.616 4H13v1H7.616q-.231 0-.424.192T7 5.616V17.95l5-2.15l5 2.15V11h1v8.5l-6-2.577zM7 5h6zm10 4V7h-2V6h2V4h1v2h2v1h-2v2z" />
                         </svg>
                     </div>
                 </div>
 
                 <!-- Content -->
-                <div class="p-2 bg-white">
+                <div class="mt-4 bg-white">
                     <h3 class="text-lg font-semibold text-gray-800 truncate">{{ story.title }}</h3>
-                    <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3">
+                    <p class="text-sm text-gray-600 mt-3 leading-relaxed line-clamp-3">
                         {{ story.preview_content }}
                     </p>
                     <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
                         <div class="flex items-center gap-2">
                             <img src="public/img/Ellipse 66.png" alt="Avatar" class="w-8 h-8 rounded-full" />
-                            <span class="font-medium truncate">{{ story.user }}</span>
+                            <span class="font-medium truncate">{{ story.user.name }}</span>
                         </div>
                         <div>
                             <span>{{ formatDate(story.created_at) || 'Date' }}</span>
                             <span class="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded-md">
-                                {{ story.category }}
+                                {{ story.category.name }}
                             </span>
                         </div>
                     </div>
@@ -89,4 +89,3 @@ const formatDate = (dateString) => {
         </div>
     </div>
 </template>
-
