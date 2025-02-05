@@ -53,7 +53,7 @@ const formatDate = (dateString) => {
                 <div class="relative">
                     <nuxt-link :to="`/detail/${story.id}`">
                         <img :src="getImageUrl(story.content_images[0])" alt="Story Image"
-                            class="w-full h-100 object-cover hover:opacity-75 transition-opacity duration-300 rounded-t-lg" />
+                            class="w-[700px] h-[480px] object-cover hover:opacity-75 transition-opacity duration-300 rounded-t-lg" />
                     </nuxt-link>
 
                     <!-- Bookmark Icon -->

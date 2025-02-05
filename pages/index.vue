@@ -16,7 +16,7 @@ const fetchStories = async () => {
       },
     });
     stories.value = response?.data || [];
-    console.log("Fetched stories:", stories.value); // Debug log
+    // console.log("Fetched stories:", stories.value); // Debug log
   } catch (error) {
     console.error("Error fetching stories:", error);
   }
@@ -37,6 +37,19 @@ const romanceStories = computed(() => {
 const horrorStories = computed(() => {
   return stories.value ? stories.value.filter(story => story.category.name === 'Horror') : [];
 });
+
+// Reactive search query
+const searchQuery = ref("")
+
+// Use router for programmatic navigation
+const router = useRouter()
+
+// Handle the search when Enter key is pressed
+const handleSearch = () => {
+  if (searchQuery.value.trim() !== "") {
+    router.push({ path: '/AllStories', query: { query: searchQuery.value } })
+  }
+}
 </script>
 
 <template>
@@ -46,10 +59,12 @@ const horrorStories = computed(() => {
   <!-- Main Content -->
   <div class="text-center mt-12 px-4">
     <!-- Heading -->
-    <h2 class="text-4xl font-bold mb-4 text-black drop-shadow-lg font-serif">Welcome to Storytime</h2>
+    <h2 class="text-4xl sm:text-3xl md:text-4xl font-bold mb-4 text-black drop-shadow-lg font-serif text-center">Welcome
+      to
+      Storytime</h2>
 
     <!-- Description -->
-    <p class="text-gray-700 text-lg mb-8 max-w-5xl mx-auto leading-relaxed font-serif">
+    <p class="text-gray-700 text-lg mb-8 max-w-5xl mx-auto leading-relaxed font-serif text-center">
       The world's most-loved social storytelling platform. Story time connects a
       global community of 90 million readers and writers through the power of
       story.
@@ -57,11 +72,17 @@ const horrorStories = computed(() => {
 
     <!-- Search Bar -->
     <div class="flex justify-center items-center mb-12">
-      <div class="relative w-full max-w-2xl">
-        <input type="text" placeholder="Search story"
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 pr-10" />
-        <NuxtLink to="/Search"
-          class="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 rounded-r-md text-gray-500">
+      <!-- Search bar container -->
+      <div class="relative w-full sm:max-w-xl max-w-full">
+        <!-- Search input -->
+        <input type="text" v-model="searchQuery" placeholder="Search story"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 pr-10"
+          aria-label="Search stories" @keyup.enter="handleSearch" />
+
+        <!-- Search icon -->
+        <NuxtLink :to="`{ path: '/AllStories', query: { query: searchQuery } }`"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 rounded-r-md text-gray-500"
+          aria-label="Search">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6">
             <path fill-rule="evenodd"
               d="M10.5 3a7.5 7.5 0 0 1 5.898 12.151l4.775 4.774a1 1 0 0 1-1.414 1.414l-4.774-4.775A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"
@@ -73,7 +94,8 @@ const horrorStories = computed(() => {
 
     <!-- Illustration -->
     <div class="flex justify-center">
-      <img src="/img/image 14.png" alt="Illustration" class="w-full max-w-2xl" />
+      <img src="/img/image 14.png" alt="Illustration"
+        class="w-full max-w-2xl h-auto sm:max-w-xl md:max-w-2xl lg:max-w-3xl" />
     </div>
   </div>
 
@@ -83,8 +105,8 @@ const horrorStories = computed(() => {
       <h2 class="text-4xl font-serif font-bold text-raisin-black mb-0">
         Latest Story
       </h2>
-      <NuxtLink to="/" class="relative flex items-center cursor-pointer text-gray-400 group">
-        <span class="text-sm group-hover:text-[#466543] transition duration-300
+      <NuxtLink to="/AllStories" class="relative flex items-center cursor-pointer text-gray-400 group">
+        <span class="text-[15px] group-hover:text-[#466543] transition duration-300
     after:content-[''] after:block after:w-full after:h-[1px] 
     after:bg-current after:scale-0 hover:after:scale-100 
     after:transition-transform after:duration-300">
@@ -117,7 +139,7 @@ const horrorStories = computed(() => {
         </h3>
         <!-- <div class="flex items-center cursor-pointer hover:text-black"> -->
         <NuxtLink to="/" class="relative flex items-center cursor-pointer text-gray-400 group">
-          <span class="text-sm group-hover:text-[#466543] transition duration-300
+          <span class="text-[15px] group-hover:text-[#466543] transition duration-300
     after:content-[''] after:block after:w-full after:h-[1px] 
     after:bg-current after:scale-0 hover:after:scale-100 
     after:transition-transform after:duration-300">
@@ -149,7 +171,7 @@ const horrorStories = computed(() => {
         </h3>
         <!-- <div class="flex items-center cursor-pointer hover:text-black"> -->
         <NuxtLink to="/" class="relative flex items-center cursor-pointer text-gray-400 group">
-          <span class="text-sm group-hover:text-[#466543] transition duration-300
+          <span class="text-[15px] group-hover:text-[#466543] transition duration-300
     after:content-[''] after:block after:w-full after:h-[1px] 
     after:bg-current after:scale-0 hover:after:scale-100 
     after:transition-transform after:duration-300">
@@ -181,7 +203,7 @@ const horrorStories = computed(() => {
           Horror
         </h3>
         <NuxtLink to="/" class="relative flex items-center cursor-pointer text-gray-400 group">
-          <span class="text-sm group-hover:text-[#466543] transition duration-300
+          <span class="text-[15px] group-hover:text-[#466543] transition duration-300
     after:content-[''] after:block after:w-full after:h-[1px] 
     after:bg-current after:scale-0 hover:after:scale-100 
     after:transition-transform after:duration-300">
@@ -209,11 +231,11 @@ const horrorStories = computed(() => {
 
   <div class="bg-white">
     <!-- Judul -->
-    <h2 class="text-2xl font-semibold mb-6 ml-12">More Categories</h2>
-    <hr class="border-t border-gray-200 mb-8 mx-12" /> <!-- Ganti ml-10 dengan mx-10 -->
+    <h2 class="text-2xl font-semibold mb-6 mx-12 sm:ml-12">More Categories</h2>
+    <hr class="border-t border-gray-200 mb-8 mx-12 sm:ml-12" /> <!-- Ganti ml-10 dengan mx-10 -->
 
     <!-- Grid Kategori -->
-    <div class="grid grid-cols-2 md:grid-cols-7 gap-2 ml-12">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 mx-12">
       <NuxtLink to="/Categories/Comedy"
         class="bg-[#F0F5ED] text-center text-[#466543] py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40"
         onmouseover="this.style.backgroundColor='#DCEEDD'; this.style.color='black';"
@@ -261,11 +283,11 @@ const horrorStories = computed(() => {
   </div>
 
   <!-- Footer -->
-  <div class="mt-8 border-t border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center">
+  <div class="mt-8 border-t border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center px-4 sm:px-12">
     <div class="ml-12">
       <p>© 2024 PT. Timedoor Indonesia. All rights reserved.</p>
     </div>
-    <div class="flex space-x-4" style="margin-right: 50px">
+    <div class="flex space-x-4 sm:space-x-6 lg:space-x-8" style="margin-right: 50px">
       <div>
         <img src="public/img/Icon Social Media.png" alt="Facebook" class="w-6 h-6" />
       </div>

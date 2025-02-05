@@ -142,7 +142,7 @@ watch(isModalOpen, (newValue) => {
   if (newValue && user.value) {
     nameInput.value = user.value.name || '';
     aboutInput.value = user.value.about || '';
-    profilePicture.value = user.value.profile_image || null;
+    profilePicture.value = getImageUrl(user.value.profile_image) || null;
   }
 });
 </script>
@@ -157,7 +157,7 @@ watch(isModalOpen, (newValue) => {
         <!-- Profile Image -->
         <img :src="getImageUrl(user?.profile_image)" alt="Profile Image"
           class="rounded-full object-cover mx-auto sm:mx-0"
-          style="margin-left: 100px; margin-top: 8px; width: 150px; height: 150px; padding: 20px;" />
+          style="margin-left: 100px; margin-top: 8px; width: 155px; height: 155px; padding: 20px;" />
         <!-- Profile Details -->
         <div class="flex-grow">
           <h1 class="text-2xl font-bold" style="color: #222222; margin-top: 30px; margin-left: 20px">

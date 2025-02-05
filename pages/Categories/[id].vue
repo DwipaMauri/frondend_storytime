@@ -14,20 +14,21 @@ const stories = ref([]);
 
 // Fetch Stories
 const fetchStories = async () => {
-  try {
-    const response = await $fetch(`${apiUrl}/api/stories`, {
-      method: 'GET',
-      params: {
-        category: selectedCategory.value,
-        search: searchQuery.value,
-        sort_by: selectedSort.value === "newest" ? "created_at" : "title",
-        sort_order: selectedSort.value === "z-a" ? "desc" : "asc",
-      }
-    });
-    stories.value = response.data || [];
-  } catch (error) {
-    console.error("Error fetching stories:", error);
-  }
+    try {
+        const params = {};
+        if (selectedCategory.value) {
+            params.category = selectedCategory.value;
+        }
+        if (searchQuery.value) {
+            params.search = searchQuery.value;
+        }
+        params.sort_by = selectedSort.value;
+
+        const response = await $fetch(`${apiUrl}/api/stories`, { method: 'GET', params });
+        stories.value = response.data || [];
+    } catch (error) {
+        console.error("Error fetching stories:", error);
+    }
 };
 
 // Watch Filters for Changes
@@ -42,6 +43,28 @@ const onCategoryChange = () => {
 onMounted(async () => {
   await fetchStories();
 });
+
+// Function to get the image URL or return the default icon
+const getImageUrl = (image) => {
+    // Ensure image is an object and has a valid url property
+    const imagePath = image && typeof image === 'object' ? image.url : '';
+
+    if (imagePath && !imagePath.startsWith('http')) {
+        // Check if imagePath is relative and build full URL
+        return `${apiUrl}/storage/${imagePath}`;
+    }
+    return imagePath || userIconSvg; // Fallback to the default icon
+};
+
+const formatDate = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+    });
+};
 </script>
 
 <template>
@@ -154,16 +177,16 @@ onMounted(async () => {
       class="border rounded-lg overflow-hidden shadow hover:shadow-lg transition"
     >
       <img
-        :src="story.first_image"
+        :src="getImageUrl(story.content_images[0])"
         alt="Story Image"
-        class="w-full h-40 object-cover"
+        class="w-full h-96 object-cover"
       />
       <div class="p-4">
         <h3 class="text-lg font-semibold mb-2">{{ story.title }}</h3>
         <p class="text-sm text-gray-600 mb-4">{{ story.preview_content }}</p>
         <div class="flex items-center justify-between text-sm text-gray-500">
-          <span>{{ story.user }}</span>
-          <span>{{ story.created_at }}</span>
+          <span>{{ story.user.name }}</span>
+          <span>{{ formatDate(story.created_at) || 'Date' }}</span>
         </div>
       </div>
     </div>

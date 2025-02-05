@@ -21,7 +21,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       // Define the default API URL, can be overridden by .env
-      apiBase: "http://localhost:8000",// Fallback to localhost if not set
+      apiBase: "http://srv711690.hstgr.cloud",// Fallback to localhost if not set
+      // apiBase: "http://localhost:8000",// Fallback to localhost if not set
     },
   },
 });

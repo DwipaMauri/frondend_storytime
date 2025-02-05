@@ -26,6 +26,10 @@ const fetchStory = async (storyId) => {
             },
         });
 
+        if (!response.data) {
+            throw new Error('No story data received');
+        }
+
         const storyData = response.data;
 
         title.value = storyData.title || '';
@@ -34,6 +38,7 @@ const fetchStory = async (storyId) => {
         contentImages.value = storyData.content_images?.map((img) => ({
             id: img.id,
             url: img.url,
+            file: null // Add file property to track existing vs new images
         })) || [];
 
         if (storyData.cover_image_url) {
@@ -62,19 +67,25 @@ const fetchCategories = async () => {
     }
 };
 
-// Handle file input for cover image
+// Handle file input for cover image and content images
 const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
     if (files.length > 0) {
-        coverImage.value = files[0]; // Menyimpan gambar pertama sebagai cover image
+        // Set cover image
+        coverImage.value = files[0];
         imagePreview.value = URL.createObjectURL(files[0]);
 
-        // Handle content images as multiple
+        // Handle content images
         if (files.length <= 3) {
-            contentImages.value = files.map((file) => ({
-                name: file.name,
+            const newImages = files.map((file) => ({
+                file: file,
                 url: URL.createObjectURL(file),
+                isNew: true
             }));
+            
+            // Combine existing images with new ones, respecting the 3 image limit
+            const totalImages = [...contentImages.value.filter(img => !img.isNew), ...newImages];
+            contentImages.value = totalImages.slice(0, 3);
         } else {
             alert("You can upload up to 3 images only.");
         }
@@ -100,46 +111,51 @@ const updateStory = async () => {
     if (!content.value.trim()) errors.value.content = 'Content is required';
     if (!categoryId.value) errors.value.category = 'Category is required';
 
-    // If there are validation errors, return early
     if (Object.keys(errors.value).length > 0) return;
 
-    // Create FormData object to handle file uploads and text data
-    const formData = new FormData();
-    formData.append('title', title.value);
-    formData.append('content', content.value);
-    formData.append('category_id', categoryId.value);
-
-    // Add cover image if available
-    if (coverImage.value) formData.append('cover_image', coverImage.value);
-
-    // Add content images (multiple files)
-    contentImages.value.forEach((image, index) => {
-        formData.append(`content_images[${index}]`, image);
-    });
-
-    // Set loading state to true
     isLoading.value = true;
 
     try {
-        // Make the API call to update the story
-        const response = await $fetch(`${apiUrl}/api/stories/update/${router.currentRoute.value.params.id}`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Authorization': `Bearer ${useCookie('token').value}` // Authorization header with token
+        const formData = new FormData();
+        formData.append('_method', 'PUT'); // Important for Laravel to recognize this as PUT request
+        formData.append('title', title.value);
+        formData.append('content', content.value);
+        formData.append('category_id', categoryId.value);
+
+        // Add cover image if available
+        if (coverImage.value) {
+            formData.append('cover_image', coverImage.value);
+        }
+
+        // Add content images
+        contentImages.value.forEach((image, index) => {
+            if (image.file && image.isNew) {
+                formData.append(`content_images[${index}]`, image.file);
+            } else if (image.id) {
+                formData.append(`existing_images[]`, image.id);
             }
         });
 
-        // If the response is successful, redirect to profile
+        const storyId = router.currentRoute.value.params.id;
+        const response = await $fetch(`${apiUrl}/api/stories/${storyId}`, {
+            method: 'POST', // Use POST with _method: PUT for proper file upload
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${useCookie('token').value}`,
+                // Don't set Content-Type header - let the browser set it with the boundary
+            }
+        });
+
         if (response.data) {
             alert('Story updated successfully!');
-            router.push('/profile');
+            await router.push('/profile');
+        } else {
+            throw new Error('No response data received');
         }
     } catch (error) {
         console.error('Update failed:', error);
-        alert('Failed to update story.');
+        alert(`Failed to update story: ${error.message || 'Unknown error'}`);
     } finally {
-        // Set loading state back to false
         isLoading.value = false;
     }
 };
@@ -147,6 +163,11 @@ const updateStory = async () => {
 // Component mounted actions
 onMounted(() => {
     const storyId = router.currentRoute.value.params.id;
+    if (!storyId) {
+        alert('No story ID provided');
+        router.push('/profile');
+        return;
+    }
     fetchStory(storyId);
     fetchCategories();
 });
@@ -240,7 +261,7 @@ onMounted(() => {
                     <input ref="fileInput" type="file" class="hidden" multiple @change="handleFileChange" />
                 </div>
             </div>
-            
+
             <!-- Submit Button -->
             <div class="flex justify-start space-x-3">
                 <a href="/profile"

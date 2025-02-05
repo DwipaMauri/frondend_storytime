@@ -78,7 +78,7 @@ const deleteStory = async () => {
         const response = await $fetch(`${apiUrl}/api/stories/${storyToDelete.value.id}`, {
             method: "DELETE",
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+                Authorization: `Bearer ${useCookie('token').value}`,
             },
         });
 
