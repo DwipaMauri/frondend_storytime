@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useRuntimeConfig, useCookie } from '#app';
+// import { ref, onMounted, watch } from 'vue';
+// import { useRouter } from 'vue-router';
+// import { useRuntimeConfig, useCookie } from '#app';
 
 // API URL
 const config = useRuntimeConfig();
@@ -10,7 +10,7 @@ const apiUrl = config.public.apiBase;
 // Reactive states
 const title = ref('');
 const content = ref('');
-const categoryId = ref(null);
+const categoryId = ref('');
 const coverImage = ref(null);
 const imagePreview = ref(null);
 const fileInput = ref(null);
@@ -90,22 +90,13 @@ const handleContentImageUpload = (event) => {
     contentImages.value = Array.from(event.target.files);
 };
 
-// Fetch categories on mount
-onMounted(async () => {
-    try {
-        const response = await $fetch(`${apiUrl}/api/categories`);
-        categories.value = response.data;
-    } catch (error) {
-        console.error('Failed to load categories:', error);
-        alert('Failed to load categories.');
-    }
-});
-
 // Fetch stories on mount
 onMounted(async () => {
     try {
-        const response = await $fetch(`${apiUrl}/api/stories`);
-        stories.value = response.data;
+        const responseStories = await $fetch(`${apiUrl}/api/stories`);
+        const responseCategories = await $fetch(`${apiUrl}/api/categories`);
+        categories.value = responseCategories.data;
+        stories.value = responseStories.data;
     } catch (error) {
         console.error('Failed to load stories:', error);
     }
@@ -240,7 +231,7 @@ const createStory = async () => {
                 <label class="block text-sm font-medium text-gray-700 mb-3">Category</label>
                 <select v-model="categoryId" class="w-full p-3 border rounded-lg"
                     :class="{ 'border-red-500': errors.category }">
-                    <option selected disabled hidden>Select a category</option>
+                    <option value="" disabled>Select a category</option>
                     <option v-for="category in categories" :key="category.id" :value="category.id">
                         {{ category.name }}
                     </option>

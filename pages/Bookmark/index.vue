@@ -2,7 +2,7 @@
 // Ref for profile picture
 const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='currentColor' d='M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4'/></svg>`;
 
-// APi Call
+// API Call
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
@@ -15,6 +15,7 @@ const aboutInput = ref('');
 const oldPasswordInput = ref('');
 const newPasswordInput = ref('');
 const confirmPasswordInput = ref('');
+const bookmarks = ref([]); // State untuk menyimpan data bookmark
 
 // Computed user data
 const user = computed(() => headerRef.value?.user || null);
@@ -99,42 +100,31 @@ const updateProfile = async () => {
   }
 };
 
-// Get Story by User
-const userStories = ref([]);
-const getStoryByUser = async () => {
+// Get Bookmarks
+const getBookmarks = async () => {
   try {
-    const response = await $fetch(`${apiUrl}/api/user/stories`, {
+    const response = await $fetch(`${apiUrl}/api/bookmarks`, {
       headers: {
         'Authorization': `Bearer ${useCookie('token').value}`
       }
     });
-    userStories.value = response.data || [];
+    bookmarks.value = response.data || [];
   } catch (error) {
-    console.error('Error fetching stories:', error);
+    console.error('Error fetching bookmarks:', error);
   }
 };
-// Mount user stories
-onMounted(async () => {
-  await getStoryByUser();
-});
 
+// Get Image URL
 const getImageUrl = (imagePath) => {
-  console.log('Original Image Path:', imagePath);
-
   if (!imagePath) {
-    console.log('No image path, using default icon');
     return userIconSvg;
   }
 
   if (imagePath.startsWith('http')) {
-    console.log('Full URL image:', imagePath);
     return imagePath;
   }
 
-  const fullUrl = `${apiUrl}/storage/${imagePath}`;
-  console.log('Constructed Full URL:', fullUrl);
-
-  return fullUrl || userIconSvg;
+  return `${apiUrl}/storage/${imagePath}` || userIconSvg;
 };
 
 // Initialize form with current user data when modal opens
@@ -144,6 +134,11 @@ watch(isModalOpen, (newValue) => {
     aboutInput.value = user.value.about || '';
     profilePicture.value = getImageUrl(user.value.profile_image) || null;
   }
+});
+
+// Mount bookmarks and user data
+onMounted(async () => {
+  await getBookmarks();
 });
 </script>
 
@@ -285,24 +280,6 @@ watch(isModalOpen, (newValue) => {
             Update Profile
           </button>
         </div>
-
-        <!-- Notification -->
-        <div v-if="isNotificationVisible"
-          class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-white shadow-lg border border-gray-300 rounded flex items-center px-4 py-2 w-full max-w-sm sm:max-w-md mt-4">
-          <svg class="w-6 h-6 text-green-600 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <p class="ml-3 text-gray-800 text-sm font-medium flex-grow">
-            Successfully edited your profile
-          </p>
-          <button @click="isNotificationVisible = false" class="text-gray-500 hover:text-gray-700 focus:outline-none">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
 
@@ -342,7 +319,7 @@ watch(isModalOpen, (newValue) => {
 
       <!-- User Stories -->
       <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20">
-        <ProfileStory :userStories="userStories" />
+        <ProfileStory :userStories="bookmarks" />
       </div>
     </div>
 
