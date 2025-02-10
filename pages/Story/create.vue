@@ -77,7 +77,6 @@ const handleFileChange = (event) => {
     }
 };
 
-
 // Remove selected image
 const removeImage = () => {
     imagePreview.value = null;

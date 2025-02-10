@@ -101,22 +101,35 @@ const updateProfile = async () => {
 
 // Get Story by User
 const userStories = ref([]);
+const currentPage = ref(1);
+const limitStoryPerPage = 10;
+const totalPages = ref(1);
+
 const getStoryByUser = async () => {
   try {
+    console.log('Fetching stories...');
     const response = await $fetch(`${apiUrl}/api/user/stories`, {
+      method: 'GET',
       headers: {
-        'Authorization': `Bearer ${useCookie('token').value}`
-      }
+        'Authorization': `Bearer ${useCookie('token').value}`,
+      },
+      query: {
+        page: currentPage.value,
+        limit: limitStoryPerPage,
+      },
     });
+
+    console.log('API Response:', response);
     userStories.value = response.data || [];
+    totalPages.value = response.total ? Math.ceil(response.total / limitStoryPerPage) : 1;
+    // totalPages.value = Math.max(1, Math.ceil(response.total / limitStoryPerPage));
   } catch (error) {
     console.error('Error fetching stories:', error);
   }
 };
-// Mount user stories
-onMounted(async () => {
-  await getStoryByUser();
-});
+
+watch(currentPage, getStoryByUser);
+onMounted(getStoryByUser);
 
 const getImageUrl = (imagePath) => {
   console.log('Original Image Path:', imagePath);
@@ -342,8 +355,24 @@ watch(isModalOpen, (newValue) => {
       </div>
 
       <!-- User Stories -->
-      <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20">
+      <div
+        class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20 min-h-[500px] flex flex-col justify-between">
         <ProfileStory :userStories="userStories" />
+
+        <!-- Pagination -->
+        <div class="col-span-2 flex justify-center items-center space-x-4 mt-4">
+          <button v-if="currentPage > 1" @click="currentPage--"
+            class="px-4 py-2 text-sm font-semibold rounded-md bg-[#466543] text-white">
+            Prev
+          </button>
+
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+
+          <button v-if="userStories.length === limitStoryPerPage" @click="currentPage++"
+            class="px-4 py-2 bg-[#466543] text-white text-sm font-semibold rounded-md">
+            Next
+          </button>
+        </div>
       </div>
     </div>
 

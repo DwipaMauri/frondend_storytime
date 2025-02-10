@@ -38,7 +38,8 @@ const fetchStory = async (storyId) => {
         contentImages.value = storyData.content_images?.map((img) => ({
             id: img.id,
             url: img.url,
-            file: null // Add file property to track existing vs new images
+            file: null,
+            isExisting: true // Flag to mark existing images
         })) || [];
 
         if (storyData.cover_image_url) {
@@ -67,42 +68,53 @@ const fetchCategories = async () => {
     }
 };
 
-// Handle file input for cover image and content images
+// HandleFileChange function
 const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
     if (files.length > 0) {
-        // Set cover image
-        coverImage.value = files[0];
-        imagePreview.value = URL.createObjectURL(files[0]);
+        const remainingSlots = 3 - contentImages.value.length;
 
-        // Handle content images
-        if (files.length <= 3) {
-            const newImages = files.map((file) => ({
+        if (remainingSlots > 0) {
+            const newImages = files.slice(0, remainingSlots).map((file) => ({
+                id: `temp-${Date.now()}-${Math.random()}`, // Temporary ID for new images
                 file: file,
                 url: URL.createObjectURL(file),
                 isNew: true
             }));
-            
-            // Combine existing images with new ones, respecting the 3 image limit
-            const totalImages = [...contentImages.value.filter(img => !img.isNew), ...newImages];
-            contentImages.value = totalImages.slice(0, 3);
+
+            // Combine existing images with new ones
+            contentImages.value = [...contentImages.value, ...newImages];
         } else {
-            alert("You can upload up to 3 images only.");
+            alert('Maximum of 3 images allowed');
         }
+    }
+
+    // Reset input
+    if (fileInput.value) {
+        fileInput.value.value = '';
     }
 };
 
 // Function to trigger file input
 const triggerFileInput = () => {
-    if (fileInput.value) fileInput.value.click();
+    fileInput.value?.click();
 };
 
-// Remove image from content
-const removeContentImage = (index) => {
-    contentImages.value.splice(index, 1);
+
+// Modified removeContentImage function
+const removeContentImage = (indexToRemove) => {
+    const imageToRemove = contentImages.value[indexToRemove];
+
+    // Create new array without the removed image
+    contentImages.value = contentImages.value.filter((_, index) => index !== indexToRemove);
+
+    // If it's a new image, clean up the object URL
+    if (imageToRemove?.isNew) {
+        URL.revokeObjectURL(imageToRemove.url);
+    }
 };
 
-// Update story
+// UpdateStory function
 const updateStory = async () => {
     errors.value = {};
 
@@ -117,40 +129,43 @@ const updateStory = async () => {
 
     try {
         const formData = new FormData();
-        formData.append('_method', 'PUT'); // Important for Laravel to recognize this as PUT request
+        formData.append('_method', 'PUT');
         formData.append('title', title.value);
         formData.append('content', content.value);
         formData.append('category_id', categoryId.value);
 
-        // Add cover image if available
-        if (coverImage.value) {
-            formData.append('cover_image', coverImage.value);
-        }
+        // Handle existing images
+        const existingImageIds = contentImages.value
+            .filter(img => !img.isNew)
+            .map(img => img.id);
+        formData.append('existing_images', JSON.stringify(existingImageIds));
 
-        // Add content images
-        contentImages.value.forEach((image, index) => {
-            if (image.file && image.isNew) {
+        // Handle new images
+        const newImages = contentImages.value.filter(img => img.isNew);
+        newImages.forEach((image, index) => {
+            if (image.file) {
                 formData.append(`content_images[${index}]`, image.file);
-            } else if (image.id) {
-                formData.append(`existing_images[]`, image.id);
             }
         });
 
         const storyId = router.currentRoute.value.params.id;
         const response = await $fetch(`${apiUrl}/api/stories/${storyId}`, {
-            method: 'POST', // Use POST with _method: PUT for proper file upload
+            method: 'POST',
             body: formData,
             headers: {
                 'Authorization': `Bearer ${useCookie('token').value}`,
-                // Don't set Content-Type header - let the browser set it with the boundary
             }
         });
 
         if (response.data) {
+            // Update local state with server response
+            contentImages.value = response.data.content_images.map(img => ({
+                ...img,
+                isNew: false
+            }));
+
             alert('Story updated successfully!');
             await router.push('/profile');
-        } else {
-            throw new Error('No response data received');
         }
     } catch (error) {
         console.error('Update failed:', error);
@@ -159,6 +174,15 @@ const updateStory = async () => {
         isLoading.value = false;
     }
 };
+
+// Cleanup URLs when component is unmounted
+onBeforeUnmount(() => {
+    contentImages.value.forEach(image => {
+        if (image.isNew) {
+            URL.revokeObjectURL(image.url);
+        }
+    });
+});
 
 // Component mounted actions
 onMounted(() => {
@@ -220,13 +244,11 @@ onMounted(() => {
                 <p v-if="errors.content" class="text-red-500 text-sm mt-1">{{ errors.content }}</p>
             </div>
 
-            <!-- Content Image Upload -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-4">Add Image</label>
                 <div class="border-2 border-dashed border-gray-300 rounded-lg h-60 w-3/5 max-w-3xl flex items-center justify-center cursor-pointer relative"
                     @click="triggerFileInput">
-
-                    <!-- Show when no image is uploaded (center the content) -->
+                    <!-- Show when no image is uploaded -->
                     <div v-if="!contentImages.length" class="flex flex-col items-center justify-center text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 mb-2" viewBox="0 0 20 20"
                             fill="currentColor">
@@ -240,10 +262,8 @@ onMounted(() => {
                     <!-- Show uploaded image previews -->
                     <div v-if="contentImages.length > 0" class="relative w-full">
                         <div class="grid grid-cols-3 gap-4">
-                            <div v-for="(image, index) in contentImages" :key="index" class="relative">
+                            <div v-for="(image, index) in contentImages" :key="image.id || index" class="relative">
                                 <img :src="image.url" alt="Content Image" class="w-full h-60 object-cover rounded-lg" />
-
-                                <!-- Remove button with event propagation stopped -->
                                 <button @click.stop="removeContentImage(index)"
                                     class="absolute top-2 right-2 bg-[#466543] text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-lime-900">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20"
@@ -258,7 +278,8 @@ onMounted(() => {
                     </div>
 
                     <!-- Hidden file input -->
-                    <input ref="fileInput" type="file" class="hidden" multiple @change="handleFileChange" />
+                    <input ref="fileInput" type="file" class="hidden" multiple accept="image/*"
+                        @change="handleFileChange" />
                 </div>
             </div>
 

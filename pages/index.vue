@@ -27,6 +27,15 @@ onMounted(async () => {
   await fetchStories();
 });
 
+const userName = ref('');
+
+onMounted(() => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (user) {
+    userName.value = user.name;
+  }
+});
+
 // Computed properties for filtered stories
 const comedyStories = computed(() => {
   return stories.value ? stories.value.filter(story => story.category.name === 'Comedy') : [];
@@ -60,8 +69,7 @@ const handleSearch = () => {
   <div class="text-center mt-12 px-4">
     <!-- Heading -->
     <h2 class="text-4xl sm:text-3xl md:text-4xl font-bold mb-4 text-black drop-shadow-lg font-serif text-center">Welcome
-      to
-      Storytime</h2>
+      to Storytime</h2>
 
     <!-- Description -->
     <p class="text-gray-700 text-lg mb-8 max-w-5xl mx-auto leading-relaxed font-serif text-center">
@@ -232,7 +240,7 @@ const handleSearch = () => {
   <div class="bg-white">
     <!-- Judul -->
     <h2 class="text-2xl font-semibold mb-6 mx-12 sm:ml-12">More Categories</h2>
-    <hr class="border-t border-gray-200 mb-8 mx-12 sm:ml-12" /> <!-- Ganti ml-10 dengan mx-10 -->
+    <hr class="border-t border-gray-200 mb-8 mx-12 sm:ml-12" /> <!-- Ganti ml-10 dengan mx-12 -->
 
     <!-- Grid Kategori -->
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 mx-12">

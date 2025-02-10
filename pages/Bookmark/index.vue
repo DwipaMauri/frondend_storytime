@@ -2,7 +2,6 @@
 // Ref for profile picture
 const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='currentColor' d='M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4'/></svg>`;
 
-// API Call
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
@@ -15,7 +14,12 @@ const aboutInput = ref('');
 const oldPasswordInput = ref('');
 const newPasswordInput = ref('');
 const confirmPasswordInput = ref('');
-const bookmarks = ref([]); // State untuk menyimpan data bookmark
+
+// Untuk bookmarks pagination
+const bookmarks = ref([]); // Data bookmark
+const currentPageBookmarks = ref(1);
+const limitBookmarksPerPage = 10;
+const totalPagesBookmarks = ref(1);
 
 // Computed user data
 const user = computed(() => headerRef.value?.user || null);
@@ -40,11 +44,9 @@ const handleFileChange = async (event) => {
         }
       });
 
-      // Update user profile image
       if (response.user?.profile_image) {
         headerRef.value.user.profile_image = response.user.profile_image;
 
-        // Preview the uploaded image
         const reader = new FileReader();
         reader.onload = (e) => {
           profilePicture.value = e.target.result;
@@ -60,7 +62,6 @@ const handleFileChange = async (event) => {
   }
 };
 
-// Profile update handler
 const updateProfile = async () => {
   try {
     const response = await $fetch(`${apiUrl}/api/user/update-profile`, {
@@ -77,20 +78,16 @@ const updateProfile = async () => {
       }
     });
 
-    // Update user data in header
     if (headerRef.value && response.user) {
       headerRef.value.user.name = response.user.name;
       headerRef.value.user.about = response.user.about;
     }
 
-    // Reset form inputs
     nameInput.value = '';
     aboutInput.value = '';
     oldPasswordInput.value = '';
     newPasswordInput.value = '';
     confirmPasswordInput.value = '';
-
-    // Close modal
     isModalOpen.value = false;
 
     alert('Profile updated successfully');
@@ -100,34 +97,35 @@ const updateProfile = async () => {
   }
 };
 
-// Get Bookmarks
 const getBookmarks = async () => {
   try {
     const response = await $fetch(`${apiUrl}/api/bookmarks`, {
       headers: {
         'Authorization': `Bearer ${useCookie('token').value}`
+      },
+      query: {
+        page: currentPageBookmarks.value,
+        limit: limitBookmarksPerPage,
       }
     });
     bookmarks.value = response.data || [];
+    totalPagesBookmarks.value = response.total
+      ? Math.ceil(response.total / limitBookmarksPerPage) : 1;
   } catch (error) {
     console.error('Error fetching bookmarks:', error);
   }
 };
 
-// Get Image URL
 const getImageUrl = (imagePath) => {
   if (!imagePath) {
     return userIconSvg;
   }
-
   if (imagePath.startsWith('http')) {
     return imagePath;
   }
-
   return `${apiUrl}/storage/${imagePath}` || userIconSvg;
 };
 
-// Initialize form with current user data when modal opens
 watch(isModalOpen, (newValue) => {
   if (newValue && user.value) {
     nameInput.value = user.value.name || '';
@@ -136,7 +134,8 @@ watch(isModalOpen, (newValue) => {
   }
 });
 
-// Mount bookmarks and user data
+watch(currentPageBookmarks, getBookmarks);
+
 onMounted(async () => {
   await getBookmarks();
 });
@@ -320,25 +319,20 @@ onMounted(async () => {
       <!-- User Stories -->
       <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20">
         <ProfileStory :userStories="bookmarks" />
-      </div>
-    </div>
 
-    <!-- Button -->
-    <div class="flex space-x-3 mt-10" style="margin-left: 450px">
-      <!-- Page 1 Button -->
-      <button class="px-4 py-2 bg-[#466543] text-white text-sm font-bold rounded-md">
-        1
-      </button>
-      <!-- Page 2 Button -->
-      <button
-        class="px-4 py-2 bg-[#F0F5ED] text-[#222222] text-sm font-bold rounded-md hover:bg-[#466543] hover:text-white">
-        2
-      </button>
-      <!-- Next Button -->
-      <button
-        class="px-4 py-2 bg-[#F0F5ED] text-[#222222] text-sm font-bold rounded-md hover:bg-[#466543] hover:text-white">
-        Next
-      </button>
+        <!-- Pagination -->
+        <div class="col-span-2 flex justify-center items-center space-x-4 mt-4">
+          <button v-if="currentPageBookmarks > 1" @click="currentPageBookmarks--"
+            class="px-4 py-2 text-sm font-semibold rounded-md bg-[#466543] text-white">
+            Prev
+          </button>
+          <span>Page {{ currentPageBookmarks }} of {{ totalPagesBookmarks }}</span>
+          <button v-if="currentPageBookmarks === totalPagesBookmarks" @click="currentPageBookmarks++"
+            class="px-4 py-2 bg-[#466543] text-white text-sm font-semibold rounded-md">
+            Next
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="border-t w-full border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center"

@@ -224,7 +224,7 @@ const toggleBookmark = async (story) => {
             </div>
             <div class="mt-5 flex justify-between items-center">
                 <span class="bg-[#F0F5ED] text-[#466543] px-3 py-1 rounded-md">
-                    {{ story.category }}
+                    {{ typeof story.category === 'object' ? story.category.name : story.category }}
                 </span>
                 <span class="text-normal font-light text-gray-900">
                     {{ formatDate(story.created_at) }}
