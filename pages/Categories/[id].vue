@@ -4,26 +4,19 @@ const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
 const route = useRoute();
-const categoryName = route.params.id; // Category from route
+const categoryName = route.params.id;
 
 // Reactive State
 const searchQuery = ref("");
 const selectedSort = ref("newest");
-const selectedCategory = ref(categoryName); // Initialize with route category
+const selectedCategory = ref(categoryName);
 const stories = ref([]);
+const bookmarkedStories = ref(new Set());
 
 // Fetch Stories
 const fetchStories = async () => {
   try {
-    const params = {};
-    if (selectedCategory.value) {
-      params.category = selectedCategory.value;
-    }
-    if (searchQuery.value) {
-      params.search = searchQuery.value;
-    }
-    params.sort_by = selectedSort.value;
-
+    const params = { category: selectedCategory.value, search: searchQuery.value, sort_by: selectedSort.value };
     const response = await $fetch(`${apiUrl}/api/stories`, { method: 'GET', params });
     stories.value = response.data || [];
   } catch (error) {
@@ -39,31 +32,31 @@ const onCategoryChange = () => {
   window.location.href = `/Categories/${selectedCategory.value}`;
 };
 
-// Initial Fetch
-onMounted(async () => {
-  await fetchStories();
+// Toggle Bookmark
+const toggleBookmark = (storyId) => {
+  if (bookmarkedStories.value.has(storyId)) {
+    bookmarkedStories.value.delete(storyId);
+  } else {
+    bookmarkedStories.value.add(storyId);
+  }
+  localStorage.setItem("bookmarkedStories", JSON.stringify([...bookmarkedStories.value]));
+};
+
+// Retrieve Bookmarks from Local Storage
+onMounted(() => {
+  const savedBookmarks = JSON.parse(localStorage.getItem("bookmarkedStories")) || [];
+  bookmarkedStories.value = new Set(savedBookmarks);
+  fetchStories();
 });
 
-// Function to get the image URL or return the default icon
 const getImageUrl = (image) => {
-  // Ensure image is an object and has a valid url property
   const imagePath = image && typeof image === 'object' ? image.url : '';
-
-  if (imagePath && !imagePath.startsWith('http')) {
-    // Check if imagePath is relative and build full URL
-    return `${apiUrl}/storage/${imagePath}`;
-  }
-  return imagePath || userIconSvg; // Fallback to the default icon
+  return imagePath && !imagePath.startsWith('http') ? `${apiUrl}/storage/${imagePath}` : imagePath;
 };
 
 const formatDate = (dateString) => {
   if (!dateString) return null;
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
+  return new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 </script>
 
@@ -150,26 +143,37 @@ const formatDate = (dateString) => {
 
   <!-- Stories Grid -->
   <div class="grid grid-cols-3 gap-6 p-10">
-    <div v-for="story in stories" :key="story.id" class="rounded-lg overflow-hidden transition">
-      <img :src="getImageUrl(story.content_images[0])" alt="Story Image" class="w-full h-96 object-cover" />
+    <div v-for="story in stories" :key="story.id" class="rounded-lg overflow-hidden transition relative group">
+      <nuxt-link :to="`/detail/${story.id}`">
+        <img :src="getImageUrl(story.content_images[0])" alt="Story Image"
+          class="w-full h-96 object-cover transition-opacity duration-300 rounded-t-lg group-hover:opacity-75" />
+      </nuxt-link>
+      
+      <!-- Toggle Bookmark Button -->
+      <button @click="toggleBookmark(story.id)"
+        class="absolute bottom-60 right-8 w-12 h-12 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-300 shadow-md"
+        :class="bookmarkedStories.has(story.id) ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
+          <transition name="fade-scale" mode="out-in">
+            <path v-if="bookmarkedStories.has(story.id)" key="bookmarked" fill="white"
+              d="M6 19.5V5.616q0-.691.463-1.153T7.616 4h8.768q.691 0 1.153.463t.463 1.153V19.5l-6-2.577z" />
+            <g v-else key="not-bookmarked">
+              <path fill="white"
+                d="M6 19.5V5.616q0-.691.463-1.153T7.616 4H13v1H7.616q-.231 0-.424.192T7 5.616V17.95l5-2.15l5 2.15V11h1v8.5l-6-2.577zM7 5h6zm10 4V7h-2V6h2V4h1v2h2v1h-2v2z" />
+            </g>
+          </transition>
+        </svg>
+      </button>
+
       <div class="mt-2">
         <h3 class="text-lg font-semibold mb-2">{{ story.title }}</h3>
         <p class="text-sm text-gray-600 mb-4">{{ story.preview_content }}</p>
-
-        <div class="mt-2 bg-white transition duration-300">
-          <div class="flex items-center justify-between mt-4 text-sm text-gray-500 transition duration-300">
-            <div class="flex items-center gap-2">
-              <img :src="story.user.profile_image" alt="Avatar" class="w-8 h-8 rounded-full" />
-              <span class="font-medium truncate transition duration-300 group-hover:text-[#466543]">
-                {{ story.user.name }}
-              </span>
-            </div>
-            <div>
-              <span class="transition duration-300">
-                {{ formatDate(story.created_at) || 'Date' }}
-              </span>
-            </div>
+        <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
+          <div class="flex items-center gap-2">
+            <img :src="story.user.profile_image" alt="Avatar" class="w-8 h-8 rounded-full" />
+            <span class="font-medium truncate">{{ story.user.name }}</span>
           </div>
+          <span>{{ formatDate(story.created_at) || 'Date' }}</span>
         </div>
       </div>
     </div>

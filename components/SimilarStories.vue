@@ -74,10 +74,11 @@ watch(
     <div class="mt-28 px-12">
         <h2 class="text-2xl font-bold mb-4">Similar Stories</h2>
         <div v-if="similarStories.length" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div v-for="story in similarStories" :key="story.id" class="transition">
+            <div v-for="story in similarStories" :key="story.id" class="transition group">
                 <NuxtLink :to="`/detail/${story.id}`">
                     <img :src="story.content_images && story.content_images[0] ? getImageUrl(story.content_images[0].url) : ''"
-                        alt="Story Image" class="w-full h-96 object-cover rounded-t-lg" />
+                        alt="Story Image"
+                        class="w-full h-96 object-cover rounded-t-lg transition-opacity duration-300 group-hover:opacity-75" />
                     <h4 class="text-xl font-semibold mt-2">{{ story.title }}</h4>
 
                     <!-- Deskripsi dengan line-clamp -->
