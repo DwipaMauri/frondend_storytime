@@ -144,15 +144,13 @@ const formatDate = (dateString) => {
                         class="text-lg font-semibold text-gray-800 truncate transition duration-300 group-hover:text-[#466543]">
                         {{ story.title }}
                     </h3>
-                    <p
-                        class="text-sm text-gray-600 mt-3 leading-relaxed line-clamp-3 transition duration-300">
+                    <p class="text-sm text-gray-600 mt-3 leading-relaxed line-clamp-3 transition duration-300">
                         {{ story.preview_content }}
                     </p>
-                    <div
-                        class="flex items-center justify-between mt-4 text-sm text-gray-500 transition duration-300">
+                    <div class="flex items-center justify-between mt-4 text-sm text-[#222222] transition duration-300">
                         <div class="flex items-center gap-2">
                             <img :src="story.user.profile_image" alt="Avatar" class="w-8 h-8 rounded-full" />
-                            <span class="font-medium truncate transition duration-300 group-hover:text-[#466543]">
+                            <span class="font-medium truncate transition duration-300">
                                 {{ story.user.name }}
                             </span>
                         </div>
@@ -160,8 +158,7 @@ const formatDate = (dateString) => {
                             <span class="transition duration-300">
                                 {{ formatDate(story.created_at) || 'Date' }}
                             </span>
-                            <span
-                                class="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded-md transition duration-300">
+                            <span class="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded-md transition duration-300">
                                 {{ story.category.name }}
                             </span>
                         </div>
