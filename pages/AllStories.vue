@@ -7,7 +7,7 @@ const route = useRoute();
 const categoryName = route.params.id || ""; // Default category is empty (all categories)
 
 // Reactive State
-const searchQuery = ref(route.query.query ?? "");
+const searchQuery = ref(route.query.Search ?? "");
 const selectedSort = ref("newest");
 const selectedCategory = ref(categoryName); // Default from route
 const stories = ref([]);

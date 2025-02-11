@@ -56,7 +56,9 @@ const router = useRouter()
 // Handle the search when Enter key is pressed
 const handleSearch = () => {
   if (searchQuery.value.trim() !== "") {
-    router.push({ path: '/AllStories', query: { query: searchQuery.value } })
+    router.push({ path: '/AllStories', query: { Search: searchQuery.value } })
+  } else {
+    router.push('/AllStories')
   }
 }
 </script>
@@ -88,7 +90,7 @@ const handleSearch = () => {
           aria-label="Search stories" @keyup.enter="handleSearch" />
 
         <!-- Search icon -->
-        <NuxtLink :to="`{ path: '/AllStories', query: { query: searchQuery } }`"
+        <NuxtLink :to="{ path: '/AllStories', query: { Search: searchQuery } }"
           class="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 rounded-r-md text-gray-500"
           aria-label="Search">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6">

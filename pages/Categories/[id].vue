@@ -148,7 +148,7 @@ const formatDate = (dateString) => {
         <img :src="getImageUrl(story.content_images[0])" alt="Story Image"
           class="w-full h-96 object-cover transition-opacity duration-300 rounded-t-lg group-hover:opacity-75" />
       </nuxt-link>
-      
+
       <!-- Toggle Bookmark Button -->
       <button @click="toggleBookmark(story.id)"
         class="absolute bottom-60 right-8 w-12 h-12 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-300 shadow-md"

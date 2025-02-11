@@ -1,10 +1,13 @@
 <script setup>
+import { onMounted } from 'vue';
+
 // Default image if there's no image
 const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='currentColor' d='M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4'/></svg>`;
 
 // API Call
 const config = useRuntimeConfig(); // Get the runtime config
 const apiUrl = config.public.apiBase; // Access the API base URL
+const token = useCookie("token").value;
 
 // Define the prop as 'userStories'
 const props = defineProps({
@@ -124,16 +127,52 @@ const formatDate = (dateString) => {
     });
 };
 
+// Create a ref for bookmark State
+const bookmarkStates = ref({});
+
+const fetchBookmarkStatus = async () => {
+    if (!token) return; // dont fetch if user not Logged in or token expired.
+    try {
+        const bookmarkResponse = await $fetch(`${apiUrl}/api/bookmarks`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        const bookmarkedIds = new Set(bookmarkResponse.data.map(story => story.id));
+
+        const newBookmarkStates = {};
+        props.userStories.forEach(story => {
+            newBookmarkStates[story.id] = bookmarkedIds.has(story.id)
+        });
+
+        bookmarkStates.value = newBookmarkStates;
+    } catch (error) {
+        console.error("Failed to fetch bookmarks: ", error);
+    }
+}
+
+watch(() => props.userStories, (newStories) => {
+    if (newStories) {
+        fetchBookmarkStatus();
+    }
+}, { immediate: true });
+
+onMounted(async () => {
+    console.log("component mounted...................")
+    await nextTick();
+    fetchBookmarkStatus();
+});
+
 // Function to navigate to the edit story page
-const navigateToEdit = (storyId) => {
-    router.push(`/story/edit/${storyId}`);
-};
+// const navigateToEdit = (storyId) => {
+//     router.push(`/story/edit/${storyId}`);
+// };
 
 // Function to toggle bookmark status
 const toggleBookmark = async (story) => {
     console.log("Toggling bookmark for story:", story);
 
-    const token = localStorage.getItem("auth_token");
+    const token = useCookie("token").value;
 
     if (!token) {
         alert("Session expired or not logged in. Please log in to continue.");
@@ -151,13 +190,12 @@ const toggleBookmark = async (story) => {
             body: { story_id: story.id },
         });
 
-        if (response.message === "Story bookmarked successfully.") {
-            story.is_bookmarked = true;
-        } else if (response.message === "Bookmark removed successfully.") {
-            story.is_bookmarked = false;
-        } else {
-            console.error("Unexpected response:", response.message || "Unknown error");
-        }
+        bookmarkStates.value = {
+            ...bookmarkStates.value,
+            [story.id]: response.is_bookmarked
+        };
+
+        alert(response.is_bookmarked ? "Bookmark successfully added!" : "Bookmark remove successfully!")
     } catch (error) {
         console.error("Error toggling bookmark:", error.message || error);
     }
@@ -193,7 +231,9 @@ const toggleBookmark = async (story) => {
                 <button @click.prevent="() => { console.log('Bookmark clicked'); toggleBookmark(story); }"
                     class="w-10 h-10 bg-[#466543] rounded-full flex items-center justify-center hover:bg-lime-900 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
-                        <path fill="#fff"
+                        <path v-if="bookmarkStates[story.id]" fill="white"
+                            d="M6 19.5V5.616q0-.691.463-1.153T7.616 4h8.768q.691 0 1.153.463t.463 1.153V19.5l-6-2.577z" />
+                        <path v-else fill="white"
                             d="M6 19.5V5.616q0-.691.463-1.153T7.616 4H13v1H7.616q-.231 0-.424.192T7 5.616V17.95l5-2.15l5 2.15V11h1v8.5l-6-2.577zM7 5h6zm10 4V7h-2V6h2V4h1v2h2v1h-2v2z" />
                     </svg>
                 </button>
@@ -224,7 +264,7 @@ const toggleBookmark = async (story) => {
             </div>
             <div class="mt-5 flex justify-between items-center">
                 <span class="bg-[#F0F5ED] text-[#466543] px-3 py-1 rounded-md">
-                    {{ typeof story.category === 'object' ? story.category.name : story.category }}
+                    {{ story.category }}
                 </span>
                 <span class="text-normal font-light text-gray-900">
                     {{ formatDate(story.created_at) }}

@@ -318,7 +318,7 @@ onMounted(async () => {
 
       <!-- User Stories -->
       <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20">
-        <ProfileStory :userStories="bookmarks" />
+        <BookmarkStory :userStories="bookmarks" />
 
         <!-- Pagination -->
         <div class="col-span-2 flex justify-center items-center space-x-4 mt-4">

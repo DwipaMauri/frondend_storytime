@@ -1,9 +1,11 @@
 <script setup>
 const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='currentColor' d='M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4'/></svg>`;
 
+// Ambil API URL dari config
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
+// Props untuk daftar cerita
 const props = defineProps({
     stories: {
         type: Array,
@@ -11,46 +13,47 @@ const props = defineProps({
     }
 });
 
+// State untuk menyimpan daftar bookmark
 const bookmarkedStories = ref(new Set());
 const token = useCookie('token').value;
 
-// Load bookmarks from both localStorage and API
+// Ambil daftar bookmark dari API dan localStorage
 const fetchBookmarkedStories = async () => {
-    // First load from localStorage
+    // Load dari localStorage terlebih dahulu
     const storedBookmarks = localStorage.getItem('bookmarkedStories');
     if (storedBookmarks) {
         bookmarkedStories.value = new Set(JSON.parse(storedBookmarks));
     }
 
-    // Then fetch from API if user is logged in
     if (!token) return;
 
     try {
-        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
             method: 'GET',
             headers: { Authorization: `Bearer ${token}` }
         });
-        // Merge API bookmarks with localStorage
+
         const apiBookmarks = new Set(bookmarks.map(b => b.story_id));
         bookmarkedStories.value = new Set([...bookmarkedStories.value, ...apiBookmarks]);
 
-        // Update localStorage with merged bookmarks
         await saveToLocalStorage();
     } catch (error) {
         console.error('Error fetching bookmarks:', error);
     }
 };
 
-// Save bookmarks to localStorage
+// Simpan daftar bookmark ke localStorage
 const saveToLocalStorage = async () => {
     await nextTick();
     localStorage.setItem('bookmarkedStories', JSON.stringify(Array.from(bookmarkedStories.value)));
 };
 
+// Ambil daftar bookmark saat komponen dipasang
 onMounted(() => {
     fetchBookmarkedStories();
 });
 
+// Handle klik bookmark
 const handleBookmarkClick = (storyId) => {
     if (!token) {
         alert('You need to log in to toggle a bookmark.');
@@ -59,6 +62,7 @@ const handleBookmarkClick = (storyId) => {
     toggleBookmark(storyId);
 };
 
+// Toggle bookmark
 const toggleBookmark = async (storyId) => {
     try {
         const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
@@ -70,16 +74,13 @@ const toggleBookmark = async (storyId) => {
             body: { story_id: storyId }
         });
 
-        // Update state bookmark locally
-        if (bookmarkedStories.value.has(storyId)) {
-            bookmarkedStories.value.delete(storyId);
-        } else {
+        if (response.is_bookmarked) {
             bookmarkedStories.value.add(storyId);
+        } else {
+            bookmarkedStories.value.delete(storyId);
         }
 
-        // Save to localStorage after state update
         await saveToLocalStorage();
-
         alert(response.message);
     } catch (error) {
         console.error('Error toggling bookmark:', error);
@@ -87,8 +88,10 @@ const toggleBookmark = async (storyId) => {
     }
 };
 
+// Cek apakah story sudah di-bookmark
 const isBookmarked = (storyId) => bookmarkedStories.value.has(storyId);
 
+// Ambil URL gambar
 const getImageUrl = (image) => {
     const imagePath = image && typeof image === 'object' ? image.url : '';
     if (imagePath && !imagePath.startsWith('http')) {
@@ -97,6 +100,7 @@ const getImageUrl = (image) => {
     return imagePath || userIconSvg;
 };
 
+// Format tanggal
 const formatDate = (dateString) => {
     if (!dateString) return null;
     const date = new Date(dateString);
