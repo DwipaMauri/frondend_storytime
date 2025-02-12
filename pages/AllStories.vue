@@ -2,56 +2,60 @@
 // API Integration
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
+const token = useCookie('token').value;
 
 const route = useRoute();
-const categoryName = route.params.id || ""; // Default category is empty (all categories)
+const categoryName = route.params.id || "";
 
 // Reactive State
 const searchQuery = ref(route.query.Search ?? "");
 const selectedSort = ref("newest");
-const selectedCategory = ref(categoryName); // Default from route
+const selectedCategory = ref(categoryName);
 const stories = ref([]);
+const currentPage = ref(1);
+const totalPages = ref(1);
+const perPage = 10;
 
-// Fetch Stories
+// Fetch Stories with Filters and Pagination
 const fetchStories = async () => {
     try {
-        const params = {};
+        const params = {
+            page: currentPage.value,
+            per_page: perPage,
+            sort_by: selectedSort.value
+        };
         if (selectedCategory.value) {
             params.category = selectedCategory.value;
         }
         if (searchQuery.value) {
             params.search = searchQuery.value;
         }
-        params.sort_by = selectedSort.value;
 
         const response = await $fetch(`${apiUrl}/api/stories`, { method: 'GET', params });
         stories.value = response.data || [];
+        totalPages.value = response.meta?.last_page || 1;
     } catch (error) {
         console.error("Error fetching stories:", error);
     }
 };
 
-// Watch Filters for Changes
-watch([searchQuery, selectedSort, selectedCategory], fetchStories);
+const changePage = (page) => {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+        fetchStories();
+    }
+};
 
-// Handle Category Change
 const onCategoryChange = () => {
     window.location.href = `/Categories/${selectedCategory.value}`;
 };
 
-// Initial Fetch
-onMounted(fetchStories);
-
-// Function to get the image URL or return the default icon
 const getImageUrl = (image) => {
-    // Ensure image is an object and has a valid url property
     const imagePath = image && typeof image === 'object' ? image.url : '';
-
     if (imagePath && !imagePath.startsWith('http')) {
-        // Check if imagePath is relative and build full URL
         return `${apiUrl}/storage/${imagePath}`;
     }
-    return imagePath || userIconSvg; // Fallback to the default icon
+    return imagePath || userIconSvg;
 };
 
 const formatDate = (dateString) => {
@@ -63,6 +67,12 @@ const formatDate = (dateString) => {
         year: 'numeric',
     });
 };
+
+// Watch Filters for Changes
+watch([searchQuery, selectedSort, selectedCategory], fetchStories);
+
+// Initial Fetch
+onMounted(fetchStories);
 </script>
 
 <template>
@@ -139,30 +149,48 @@ const formatDate = (dateString) => {
     </div>
 
     <!-- Stories Grid -->
-    <div class="mt-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-12">
-            <!-- Loop through fetched stories and display cards -->
-            <div v-for="story in stories" :key="story.id" class="bg-white p-4 rounded-md">
-                <!-- Image Display -->
+    <div class="grid grid-cols-1 md:grid-cols-3 px-12">
+        <div v-for="story in stories" :key="story.id" class="bg-white p-4 rounded-md">
+            <nuxt-link :to="`/detail/${story.id}`">
                 <img v-if="story.content_images" :src="getImageUrl(story.content_images[0])" alt="Story Image"
-                    class="w-full h-96 object-cover rounded-md mb-4" />
-
-                <h3 class="font-serif text-xl font-bold text-gray-800">{{ story.title }}</h3>
-                <p class="text-gray-600 mt-2"> {{ story.preview_content }} </p>
-
-                <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
-                    <div class="flex items-center gap-2">
-                        <img :src="story.user.profile_image" alt="Avatar" class="w-8 h-8 rounded-full" />
-                        <span class="font-medium truncate">{{ story.user.name }}</span>
-                    </div>
-                    <div>
-                        <span>{{ formatDate(story.created_at) || 'Date' }}</span>
-                        <span class="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded-md">
-                            {{ story.category.name }}
-                        </span>
-                    </div>
+                    class="w-full h-96 object-cover rounded-md mb-3" />
+            </nuxt-link>
+            <h3 class="font-serif text-xl font-bold text-gray-800">{{ story.title }}</h3>
+            <p class="text-gray-600 mt-2">{{ story.preview_content }}</p>
+            <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
+                <div class="flex items-center gap-2">
+                    <img :src="story.user.profile_image" alt="Avatar" class="w-8 h-8 rounded-full" />
+                    <span class="font-medium truncate">{{ story.user.name }}</span>
+                </div>
+                <div>
+                    <span>{{ formatDate(story.created_at) || 'Date' }}</span>
+                    <span class="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded-md">{{ story.category.name }}</span>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center mt-8 space-x-2">
+        <!-- Tombol "Prev" hanya muncul jika currentPage > 1 -->
+        <button v-if="currentPage > 1" @click="changePage(currentPage - 1)"
+            class="px-4 py-2 bg-[#466543] text-white hover:bg-lime-900 rounded">
+            Prev
+        </button>
+
+        <!-- Nomor halaman -->
+        <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+            class="px-4 py-2 rounded transition-all" :class="{
+                'bg-[#466543] text-white font-bold': currentPage === page,
+                'bg-gray-100 text-gray-800 hover:bg-gray-200': currentPage !== page
+            }">
+            {{ page }}
+        </button>
+
+        <!-- Tombol "Next" hanya muncul jika belum di halaman terakhir -->
+        <button v-if="currentPage < totalPages" @click="changePage(currentPage + 1)"
+            class="px-4 py-2 bg-[#466543] text-white hover:bg-[#3B4F3A] rounded">
+            Next
+        </button>
     </div>
 </template>

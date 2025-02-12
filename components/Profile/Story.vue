@@ -158,7 +158,7 @@ watch(() => props.userStories, (newStories) => {
 }, { immediate: true });
 
 onMounted(async () => {
-    console.log("component mounted...................")
+    // console.log("component mounted...................")
     await nextTick();
     fetchBookmarkStatus();
 });

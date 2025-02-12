@@ -108,7 +108,7 @@ const isBookmarked = (storyId) => bookmarkedStories.value.has(storyId);
 
         <!-- Tombol Bookmark (DI LUAR nuxt-link) -->
         <button @click.stop="handleBookmarkClick(story.id)"
-            class="absolute inset-0 m-auto flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100 -translate-y-8"
+            class="absolute inset-0 m-auto flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100 -translate-y-32"
             :class="isBookmarked(story.id) ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
             <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
                 <path v-if="isBookmarked(story.id)" fill="white"
