@@ -2,9 +2,10 @@
 // API Call
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
-console.log(apiUrl);
+// console.log(apiUrl);
 
 const stories = ref([]);
+const userName = ref('');
 
 // Fetch stories function
 const fetchStories = async () => {
@@ -23,16 +24,26 @@ const fetchStories = async () => {
 };
 
 // Fetch stories on component mount
+// onMounted(async () => {
+//   await fetchStories();
+// });
+
+
+// onMounted(() => {
+//   const user = JSON.parse(localStorage.getItem('user'));
+//   if (user) {
+//     userName.value = user.name;
+//   }
+// });
+
 onMounted(async () => {
+  // Fetch stories dari API
   await fetchStories();
-});
 
-const userName = ref('');
-
-onMounted(() => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (user) {
-    userName.value = user.name;
+  // Ambil data user dari localStorage
+  const storedUser = useCookie('user').value;
+  if (storedUser) {
+    userName.value = storedUser.name;
   }
 });
 
@@ -70,6 +81,11 @@ const handleSearch = () => {
   <!-- Main Content -->
   <div class="text-center mt-12 px-4">
     <!-- Heading -->
+    <p v-if="userName"
+      class="text-4xl font-bold text-indigo-600 mb-3 from-indigo-100 via-indigo-200 to-indigo-100 rounded-md">
+      Annyeonghaseyo, {{ userName }}!
+    </p>
+
     <h2 class="text-4xl sm:text-3xl md:text-4xl font-bold mb-4 text-black drop-shadow-lg font-serif text-center">Welcome
       to Storytime</h2>
 
