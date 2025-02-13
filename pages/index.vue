@@ -82,7 +82,7 @@ const handleSearch = () => {
   <div class="text-center mt-12 px-4">
     <!-- Heading -->
     <p v-if="userName"
-      class="text-4xl font-bold text-indigo-600 mb-3 from-indigo-100 via-indigo-200 to-indigo-100 rounded-md">
+      class="text-4xl sm:text-3xl md:text-4xl font-bold mb-4 text-black drop-shadow-lg font-serif text-center">
       Annyeonghaseyo, {{ userName }}!
     </p>
 
@@ -164,7 +164,7 @@ const handleSearch = () => {
           Comedy
         </h3>
         <!-- <div class="flex items-center cursor-pointer hover:text-black"> -->
-        <NuxtLink to="/" class="relative flex items-center cursor-pointer text-gray-400 group">
+        <NuxtLink to="/Categories/Comedy" class="relative flex items-center cursor-pointer text-gray-400 group">
           <span class="text-[15px] group-hover:text-[#466543] transition duration-300
     after:content-[''] after:block after:w-full after:h-[1px] 
     after:bg-current after:scale-0 hover:after:scale-100 
@@ -196,7 +196,7 @@ const handleSearch = () => {
           Romance
         </h3>
         <!-- <div class="flex items-center cursor-pointer hover:text-black"> -->
-        <NuxtLink to="/" class="relative flex items-center cursor-pointer text-gray-400 group">
+        <NuxtLink to="/Categories/Romance" class="relative flex items-center cursor-pointer text-gray-400 group">
           <span class="text-[15px] group-hover:text-[#466543] transition duration-300
     after:content-[''] after:block after:w-full after:h-[1px] 
     after:bg-current after:scale-0 hover:after:scale-100 
@@ -228,7 +228,7 @@ const handleSearch = () => {
         <h3 class="text-4xl font-serif font-bold text-raisin black">
           Horror
         </h3>
-        <NuxtLink to="/" class="relative flex items-center cursor-pointer text-gray-400 group">
+        <NuxtLink to="/Categories/Horror" class="relative flex items-center cursor-pointer text-gray-400 group">
           <span class="text-[15px] group-hover:text-[#466543] transition duration-300
     after:content-[''] after:block after:w-full after:h-[1px] 
     after:bg-current after:scale-0 hover:after:scale-100 

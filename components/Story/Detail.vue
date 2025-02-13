@@ -10,7 +10,7 @@ const props = defineProps({
 const bookmarkedStories = ref(new Set());
 const token = useCookie('token').value;
 const config = useRuntimeConfig();
-const apiUrl = config.public.apiUrl;
+const apiUrl = config.public.apiBase;
 
 // Fetch initial bookmark status
 const fetchBookmarkedStories = async () => {
