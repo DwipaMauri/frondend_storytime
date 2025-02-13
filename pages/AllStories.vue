@@ -15,6 +15,7 @@ const stories = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const perPage = 10;
+const bookmarkedStories = ref(new Set()); // State untuk menyimpan daftar bookmark
 
 // Fetch Stories with Filters and Pagination
 const fetchStories = async () => {
@@ -68,11 +69,83 @@ const formatDate = (dateString) => {
     });
 };
 
+// Ambil daftar bookmark dari API dan localStorage
+const fetchBookmarkedStories = async () => {
+    // Load dari localStorage terlebih dahulu
+    const storedBookmarks = localStorage.getItem('bookmarkedStories');
+    if (storedBookmarks) {
+        bookmarkedStories.value = new Set(JSON.parse(storedBookmarks));
+    }
+
+    if (!token) return;
+
+    try {
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const apiBookmarks = new Set(bookmarks.map(b => b.story_id));
+        bookmarkedStories.value = new Set([...bookmarkedStories.value, ...apiBookmarks]);
+
+        await saveToLocalStorage();
+    } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+    }
+};
+
+// Simpan daftar bookmark ke localStorage
+const saveToLocalStorage = async () => {
+    await nextTick();
+    localStorage.setItem('bookmarkedStories', JSON.stringify(Array.from(bookmarkedStories.value)));
+};
+
+// Handle klik bookmark
+const handleBookmarkClick = (storyId) => {
+    if (!token) {
+        alert('You need to log in to toggle a bookmark.');
+        return;
+    }
+    toggleBookmark(storyId);
+};
+
+// Toggle bookmark
+const toggleBookmark = async (storyId) => {
+    try {
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: { story_id: storyId }
+        });
+
+        if (response.is_bookmarked) {
+            bookmarkedStories.value.add(storyId);
+        } else {
+            bookmarkedStories.value.delete(storyId);
+        }
+
+        await saveToLocalStorage();
+        alert(response.message);
+    } catch (error) {
+        console.error('Error toggling bookmark:', error);
+        alert(error.data?.message || 'An error occurred while toggling bookmark.');
+    }
+};
+
+// Cek apakah story sudah di-bookmark
+const isBookmarked = (storyId) => bookmarkedStories.value.has(storyId);
+
 // Watch Filters for Changes
 watch([searchQuery, selectedSort, selectedCategory], fetchStories);
 
 // Initial Fetch
-onMounted(fetchStories);
+onMounted(() => {
+    fetchStories();
+    fetchBookmarkedStories(); // Ambil daftar bookmark saat komponen dipasang
+});
 </script>
 
 <template>
@@ -150,13 +223,35 @@ onMounted(fetchStories);
 
     <!-- Stories Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 px-12">
-        <div v-for="story in stories" :key="story.id" class="bg-white p-4 rounded-md">
+        <div v-for="story in stories" :key="story.id" class="bg-white p-4 rounded-md relative">
+            <div class="relative">
+                <nuxt-link :to="`/detail/${story.id}`">
+                    <img v-if="story.content_images" :src="getImageUrl(story.content_images[0])" alt="Story Image"
+                        class="w-full h-96 object-cover rounded-md mb-3" />
+                </nuxt-link>
+
+                <!-- Tombol Bookmark di atas gambar, tetapi di luar <NuxtLink> -->
+                <button @click="handleBookmarkClick(story.id)"
+                    class="absolute bottom-8 right-6 w-12 h-12 flex items-center justify-center rounded-full transition-colors duration-300"
+                    :class="isBookmarked(story.id) ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
+                        <transition name="fade-scale" mode="out-in">
+                            <path v-if="isBookmarked(story.id)" key="bookmarked" fill="white"
+                                d="M6 19.5V5.616q0-.691.463-1.153T7.616 4h8.768q.691 0 1.153.463t.463 1.153V19.5l-6-2.577z" />
+                            <g v-else key="not-bookmarked">
+                                <path fill="white"
+                                    d="M6 19.5V5.616q0-.691.463-1.153T7.616 4H13v1H7.616q-.231 0-.424.192T7 5.616V17.95l5-2.15l5 2.15V11h1v8.5l-6-2.577zM7 5h6zm10 4V7h-2V6h2V4h1v2h2v1h-2v2z" />
+                            </g>
+                        </transition>
+                    </svg>
+                </button>
+            </div>
+
             <nuxt-link :to="`/detail/${story.id}`">
-                <img v-if="story.content_images" :src="getImageUrl(story.content_images[0])" alt="Story Image"
-                    class="w-full h-96 object-cover rounded-md mb-3" />
+                <h3 class="font-serif text-xl font-bold text-gray-800">{{ story.title }}</h3>
+                <p class="text-gray-600 mt-2">{{ story.preview_content }}</p>
             </nuxt-link>
-            <h3 class="font-serif text-xl font-bold text-gray-800">{{ story.title }}</h3>
-            <p class="text-gray-600 mt-2">{{ story.preview_content }}</p>
+
             <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
                 <div class="flex items-center gap-2">
                     <img :src="story.user.profile_image" alt="Avatar" class="w-8 h-8 rounded-full" />
@@ -181,8 +276,8 @@ onMounted(fetchStories);
         <!-- Nomor halaman -->
         <button v-for="page in totalPages" :key="page" @click="changePage(page)"
             class="px-4 py-2 rounded transition-all" :class="{
-                'bg-[#466543] text-white font-bold': currentPage === page,
-                'bg-gray-100 text-gray-800 hover:bg-gray-200': currentPage !== page
+                'bg-[#466543] hover:bg-[#3B4F3A] text-white font-bold': currentPage === page,
+                'bg-[#466543] text-white hover:bg-[#3B4F3A]': currentPage !== page
             }">
             {{ page }}
         </button>

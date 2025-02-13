@@ -1,7 +1,4 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import SimilarStories from '~/components/SimilarStories.vue'; // pastikan path-nya benar
-
 // Menerima data story lewat props (pastikan tipe datanya Object)
 const props = defineProps({
     storiesId: {
@@ -16,6 +13,50 @@ const props = defineProps({
 const images = ref([]);
 const isModalOpen = ref(false);
 const currentIndex = ref(0);
+const bookmarkedStories = ref(new Set());
+
+// Ambil daftar bookmark
+const fetchBookmarkedStories = async () => {
+    if (!token) return;
+    try {
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        bookmarkedStories.value = new Set(bookmarks.map(b => b.story_id));
+    } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+    }
+};
+
+onMounted(() => {
+    fetchBookmarkedStories();
+});
+
+const toggleBookmark = async (storyId) => {
+    if (!token) {
+        alert('You need to log in to toggle a bookmark.');
+        return;
+    }
+    try {
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: { story_id: storyId }
+        });
+
+        if (response.is_bookmarked) {
+            bookmarkedStories.value.add(storyId);
+        } else {
+            bookmarkedStories.value.delete(storyId);
+        }
+    } catch (error) {
+        console.error('Error toggling bookmark:', error);
+    }
+};
 
 // Buka modal dan set gambar yang diklik
 const handleOpenModal = (index) => {
@@ -69,7 +110,7 @@ const formatDate = (dateString) => {
 
         <!-- Breadcrumb -->
         <nav class="bg-[#F0F5ED] py-6">
-            <div class="container mx-auto text-sm text-[#466543] ml-12">
+            <div class="container mx-auto text-sm text-[#466543] pl-12">
                 <NuxtLink to="/" class="relative inline-block group">
                     Home
                     <span
@@ -85,6 +126,23 @@ const formatDate = (dateString) => {
                 </NuxtLink>
             </div>
         </nav>
+
+        <div class="relative">
+            <button @click="toggleBookmark(storiesId.id)"
+                class="absolute top-5 right-14 w-12 h-12 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-300"
+                :class="bookmarkedStories.has(storiesId.id) ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
+                    <transition name="fade-scale" mode="out-in">
+                        <path v-if="bookmarkedStories.has(storiesId.id)" key="bookmarked" fill="white"
+                            d="M6 19.5V5.616q0-.691.463-1.153T7.616 4h8.768q.691 0 1.153.463t.463 1.153V19.5l-6-2.577z" />
+                        <g v-else key="not-bookmarked">
+                            <path fill="white"
+                                d="M6 19.5V5.616q0-.691.463-1.153T7.616 4H13v1H7.616q-.231 0-.424.192T7 5.616V17.95l5-2.15l5 2.15V11h1v8.5l-6-2.577zM7 5h6zm10 4V7h-2V6h2V4h1v2h2v1h-2v2z" />
+                        </g>
+                    </transition>
+                </svg>
+            </button>
+        </div>
 
         <!-- Konten Utama -->
         <main class="container mx-auto px-4 py-8">
@@ -114,7 +172,7 @@ const formatDate = (dateString) => {
                 </div>
                 <!-- Tombol Navigasi Gambar -->
                 <button @click="prevImage"
-                    class="absolute left-4 top-[35%] transform -translate-y-1/2 bg-transparent rounded-full p-1"
+                    class="absolute left-4 top-[30%] transform -translate-y-1/2 bg-transparent rounded-full p-1"
                     aria-label="Previous">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-300" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -122,7 +180,7 @@ const formatDate = (dateString) => {
                     </svg>
                 </button>
                 <button @click="nextImage"
-                    class="absolute right-4 top-[35%] transform -translate-y-1/2 bg-transparent text-white rounded-full p-1"
+                    class="absolute right-4 top-[30%] transform -translate-y-1/2 bg-transparent text-white rounded-full p-1"
                     aria-label="Next">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="3">
@@ -193,7 +251,7 @@ const formatDate = (dateString) => {
 
         <!-- Footer -->
         <div class="mt-8 border-t border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center">
-            <div class="ml-20">
+            <div class="ml-12">
                 <p>© 2024 PT. Timedoor Indonesia. All rights reserved.</p>
             </div>
             <div class="flex space-x-4" style="margin-right: 50px">
