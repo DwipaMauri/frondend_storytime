@@ -33,7 +33,7 @@ const fetchBookmarkedStories = async () => {
     if (!token) return;
 
     try {
-        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks/list`, {
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
             method: 'GET',
             headers: { Authorization: `Bearer ${token}` }
         });

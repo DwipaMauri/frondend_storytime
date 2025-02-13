@@ -7,56 +7,72 @@ const props = defineProps({
     },
 });
 
-// -----------------------
-// Pengaturan Modal dan Gambar
-// -----------------------
-const images = ref([]);
-const isModalOpen = ref(false);
-const currentIndex = ref(0);
 const bookmarkedStories = ref(new Set());
+const token = useCookie('token').value;
+const config = useRuntimeConfig();
+const apiUrl = config.public.apiUrl;
 
-// Ambil daftar bookmark
+// Fetch initial bookmark status
 const fetchBookmarkedStories = async () => {
     if (!token) return;
     try {
         const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
             method: 'GET',
-            headers: { Authorization: `Bearer ${token}` }
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
-        bookmarkedStories.value = new Set(bookmarks.map(b => b.story_id));
+        bookmarkedStories.value = new Set(bookmarks.map(bookmark => bookmark.story_id));
     } catch (error) {
         console.error('Error fetching bookmarks:', error);
     }
 };
 
-onMounted(() => {
-    fetchBookmarkedStories();
-});
-
+// Toggle bookmark
 const toggleBookmark = async (storyId) => {
     if (!token) {
         alert('You need to log in to toggle a bookmark.');
         return;
     }
+
     try {
+        // Make sure to use the full API URL
         const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
             },
-            body: { story_id: storyId }
+            body: {  // Remove JSON.stringify since $fetch handles this automatically
+                story_id: storyId
+            }
         });
 
+        // Update local state based on response
         if (response.is_bookmarked) {
             bookmarkedStories.value.add(storyId);
         } else {
             bookmarkedStories.value.delete(storyId);
         }
+
+        // Show success message from backend
+        alert(response.message);
+
     } catch (error) {
         console.error('Error toggling bookmark:', error);
+        if (error.response?.status === 401) {
+            alert('You need to log in to toggle a bookmark.');
+        } else {
+            alert(error.data?.message || 'An error occurred while toggling bookmark.');
+        }
     }
 };
+
+// Initialize bookmarks on component mount
+onMounted(() => {
+    fetchBookmarkedStories();
+});
 
 // Buka modal dan set gambar yang diklik
 const handleOpenModal = (index) => {
