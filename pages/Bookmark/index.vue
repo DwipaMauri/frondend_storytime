@@ -118,7 +118,7 @@ const getBookmarks = async () => {
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
-    fetchStories();
+    getBookmarks();
   }
 };
 
@@ -323,33 +323,33 @@ onMounted(async () => {
       </div>
 
       <!-- User Stories -->
-      <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20">
+      <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-16">
         <BookmarkStory :userStories="bookmarks" />
-
-        <!-- Pagination Controls -->
-        <div class="flex justify-center mt-8 space-x-2">
-          <!-- Tombol "Prev" hanya muncul jika currentPage > 1 -->
-          <button v-if="currentPage > 1" @click="changePage(currentPage - 1)"
-            class="px-4 py-2 bg-[#466543] text-white hover:bg-lime-900 rounded">
-            Prev
-          </button>
-
-          <!-- Nomor halaman -->
-          <button v-for="page in totalPages" :key="page" @click="changePage(page)"
-            class="px-4 py-2 rounded transition-all" :class="{
-              'bg-[#466543] hover:bg-[#3B4F3A] text-white font-bold': currentPage === page,
-              'bg-[#466543] text-white hover:bg-[#3B4F3A]': currentPage !== page
-            }">
-            {{ page }}
-          </button>
-
-          <!-- Tombol "Next" hanya muncul jika belum di halaman terakhir -->
-          <button v-if="currentPage < totalPages" @click="changePage(currentPage + 1)"
-            class="px-4 py-2 bg-[#466543] text-white hover:bg-[#3B4F3A] rounded">
-            Next
-          </button>
-        </div>
       </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="mt-auto w-full flex justify-center items-center space-x-2">
+      <!-- Tombol "Prev" hanya muncul jika currentPage > 1 -->
+      <button v-if="currentPage > 1" @click="changePage(currentPage - 1)"
+        class="px-4 py-2 bg-[#466543] text-white hover:bg-lime-900 rounded">
+        Prev
+      </button>
+
+      <!-- Nomor halaman -->
+      <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+        class="px-4 py-2 rounded transition-all mx-1" :class="{
+          'bg-[#466543] hover:bg-[#3B4F3A] text-white font-bold': currentPage === page,
+          'bg-[#466543] text-white hover:bg-[#3B4F3A]': currentPage !== page
+        }">
+        {{ page }}
+      </button>
+
+      <!-- Tombol "Next" hanya muncul jika belum di halaman terakhir -->
+      <button v-if="currentPage < totalPages" @click="changePage(currentPage + 1)"
+        class="px-4 py-2 bg-[#466543] text-white hover:bg-[#3B4F3A] rounded">
+        Next
+      </button>
     </div>
 
     <div class="border-t w-full border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center"
