@@ -17,9 +17,9 @@ const confirmPasswordInput = ref('');
 
 // Untuk bookmarks pagination
 const bookmarks = ref([]); // Data bookmark
-const currentPageBookmarks = ref(1);
-const limitBookmarksPerPage = 10;
-const totalPagesBookmarks = ref(1);
+const currentPage = ref(1);
+const totalPages = ref(1);
+const perPage = 10;
 
 // Computed user data
 const user = computed(() => headerRef.value?.user || null);
@@ -104,15 +104,21 @@ const getBookmarks = async () => {
         'Authorization': `Bearer ${useCookie('token').value}`
       },
       query: {
-        page: currentPageBookmarks.value,
-        limit: limitBookmarksPerPage,
+        page: currentPage.value,
+        per_page: perPage,
       }
     });
     bookmarks.value = response.data || [];
-    totalPagesBookmarks.value = response.total
-      ? Math.ceil(response.total / limitBookmarksPerPage) : 1;
+    totalPages.value = response.meta?.last_page || 1;
   } catch (error) {
     console.error('Error fetching bookmarks:', error);
+  }
+};
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    fetchStories();
   }
 };
 
@@ -134,7 +140,7 @@ watch(isModalOpen, (newValue) => {
   }
 });
 
-watch(currentPageBookmarks, getBookmarks);
+watch(currentPage, getBookmarks);
 
 onMounted(async () => {
   await getBookmarks();
@@ -320,15 +326,26 @@ onMounted(async () => {
       <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20">
         <BookmarkStory :userStories="bookmarks" />
 
-        <!-- Pagination -->
-        <div class="col-span-2 flex justify-center items-center space-x-4 mt-4">
-          <button v-if="currentPageBookmarks > 1" @click="currentPageBookmarks--"
-            class="px-4 py-2 text-sm font-semibold rounded-md bg-[#466543] text-white">
+        <!-- Pagination Controls -->
+        <div class="flex justify-center mt-8 space-x-2">
+          <!-- Tombol "Prev" hanya muncul jika currentPage > 1 -->
+          <button v-if="currentPage > 1" @click="changePage(currentPage - 1)"
+            class="px-4 py-2 bg-[#466543] text-white hover:bg-lime-900 rounded">
             Prev
           </button>
-          <span>Page {{ currentPageBookmarks }} of {{ totalPagesBookmarks }}</span>
-          <button v-if="currentPageBookmarks === totalPagesBookmarks" @click="currentPageBookmarks++"
-            class="px-4 py-2 bg-[#466543] text-white text-sm font-semibold rounded-md">
+
+          <!-- Nomor halaman -->
+          <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+            class="px-4 py-2 rounded transition-all" :class="{
+              'bg-[#466543] hover:bg-[#3B4F3A] text-white font-bold': currentPage === page,
+              'bg-[#466543] text-white hover:bg-[#3B4F3A]': currentPage !== page
+            }">
+            {{ page }}
+          </button>
+
+          <!-- Tombol "Next" hanya muncul jika belum di halaman terakhir -->
+          <button v-if="currentPage < totalPages" @click="changePage(currentPage + 1)"
+            class="px-4 py-2 bg-[#466543] text-white hover:bg-[#3B4F3A] rounded">
             Next
           </button>
         </div>
