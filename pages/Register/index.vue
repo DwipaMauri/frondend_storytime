@@ -101,7 +101,7 @@ const handleRegister = async () => {
       <div class="p-8 bg-green-50 flex flex-col justify-between items-start">
         <!-- Logo -->
         <div class="mb-6">
-          <img src="public/img/image 15.png" alt="Storytime Logo" class="h-10" />
+          <img src="public/img/imag+e 15.png" alt="Storytime Logo" class="h-10" />
         </div>
 
         <!-- Teks Deskripsi -->

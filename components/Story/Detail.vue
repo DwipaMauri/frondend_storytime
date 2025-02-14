@@ -12,6 +12,10 @@ const token = useCookie('token').value;
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
+
+const currentIndex = ref(0);
+const isModalOpen = ref(false);
+
 // Fetch initial bookmark status
 const fetchBookmarkedStories = async () => {
     if (!token) return;
@@ -169,7 +173,7 @@ const formatDate = (dateString) => {
                 <h1 class="text-4xl font-bold text-gray-800 mb-8">{{ storiesId.title }}</h1>
                 <!-- Penulis -->
                 <div class="flex justify-center items-center space-x-2 text-[#222222]">
-                    <img src="public/img/Ellipse 66 (4).png" alt="Author" class="w-6 h-6 rounded-full" />
+                    <img :src="storiesId?.user?.profile_image" alt="Avatar" class="w-8 h-8 rounded-full" />
                     <span class="font-medium">{{ storiesId?.user?.name }}</span>
                 </div>
             </div>
