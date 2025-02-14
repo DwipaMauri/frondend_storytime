@@ -119,7 +119,7 @@ const formatDate = (dateString) => {
 
     <div v-else class="overflow-x-auto scrollbar-hide whitespace-nowrap">
         <div class="flex gap-4">
-            <div v-for="story in stories" :key="story.id"
+            <div v-for="story in stories.slice(0, 6)" :key="story.id"
                 class="min-w-[420px] max-w-[500px] overflow-hidden flex-shrink-0 rounded-lg group transition duration-300">
                 <div class="relative">
                     <nuxt-link :to="`/detail/${story.id}`">

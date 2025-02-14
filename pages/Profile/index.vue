@@ -18,6 +18,7 @@ const confirmPasswordInput = ref('');
 
 // Computed user data
 const user = computed(() => headerRef.value?.user || null);
+const userStories = ref([]);
 
 // File input handling
 const triggerFileInput = () => {
@@ -100,10 +101,9 @@ const updateProfile = async () => {
 };
 
 // Get Story by User
-const userStories = ref([]);
 const currentPage = ref(1);
-const limitStoryPerPage = 10;
 const totalPages = ref(1);
+const perPage = 10;
 
 const getStoryByUser = async () => {
   try {
@@ -115,16 +115,23 @@ const getStoryByUser = async () => {
       },
       query: {
         page: currentPage.value,
-        limit: limitStoryPerPage,
+        per_page: perPage,
       },
     });
 
     console.log('API Response:', response);
     userStories.value = response.data || [];
-    totalPages.value = response.total ? Math.ceil(response.total / limitStoryPerPage) : 1;
+    totalPages.value = response.meta?.last_page || 1;
     // totalPages.value = Math.max(1, Math.ceil(response.total / limitStoryPerPage));
   } catch (error) {
     console.error('Error fetching stories:', error);
+  }
+};
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    fetchStories();
   }
 };
 
@@ -359,17 +366,26 @@ watch(isModalOpen, (newValue) => {
         class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 mx-20 min-h-[500px] flex flex-col justify-between">
         <ProfileStory :userStories="userStories" />
 
-        <!-- Pagination -->
-        <div class="col-span-2 flex justify-center items-center space-x-4 mt-4">
-          <button v-if="currentPage > 1" @click="currentPage--"
-            class="px-4 py-2 text-sm font-semibold rounded-md bg-[#466543] text-white">
+        <!-- Pagination Controls -->
+        <div class="flex justify-center mt-8 space-x-2">
+          <!-- Tombol "Prev" hanya muncul jika currentPage > 1 -->
+          <button v-if="currentPage > 1" @click="changePage(currentPage - 1)"
+            class="px-4 py-2 bg-[#466543] text-white hover:bg-lime-900 rounded">
             Prev
           </button>
 
-          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <!-- Nomor halaman -->
+          <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+            class="px-4 py-2 rounded transition-all" :class="{
+              'bg-[#466543] hover:bg-[#3B4F3A] text-white font-bold': currentPage === page,
+              'bg-[#466543] text-white hover:bg-[#3B4F3A]': currentPage !== page
+            }">
+            {{ page }}
+          </button>
 
-          <button v-if="userStories.length === limitStoryPerPage" @click="currentPage++"
-            class="px-4 py-2 bg-[#466543] text-white text-sm font-semibold rounded-md">
+          <!-- Tombol "Next" hanya muncul jika belum di halaman terakhir -->
+          <button v-if="currentPage < totalPages" @click="changePage(currentPage + 1)"
+            class="px-4 py-2 bg-[#466543] text-white hover:bg-[#3B4F3A] rounded">
             Next
           </button>
         </div>

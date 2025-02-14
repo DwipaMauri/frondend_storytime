@@ -13,14 +13,29 @@ const selectedCategory = ref(categoryName);
 const stories = ref([]);
 const bookmarkedStories = ref(new Set());
 
+const currentPage = ref(1);
+const totalPages = ref(1);
+const perPage = 10;
+
 // Fetch Stories
 const fetchStories = async () => {
   try {
-    const params = { category: selectedCategory.value, search: searchQuery.value, sort_by: selectedSort.value };
+    const params = {
+      category: selectedCategory.value, search: searchQuery.value, sort_by: selectedSort.value, page: currentPage.value,
+      per_page: perPage,
+    };
     const response = await $fetch(`${apiUrl}/api/stories`, { method: 'GET', params });
     stories.value = response.data || [];
+    totalPages.value = response.meta?.last_page || 1;
   } catch (error) {
     console.error("Error fetching stories:", error);
+  }
+};
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    fetchStories();
   }
 };
 
@@ -177,5 +192,29 @@ const formatDate = (dateString) => {
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="flex justify-center mt-8 space-x-2">
+    <!-- Tombol "Prev" hanya muncul jika currentPage > 1 -->
+    <button v-if="currentPage > 1" @click="changePage(currentPage - 1)"
+      class="px-4 py-2 bg-[#466543] text-white hover:bg-lime-900 rounded">
+      Prev
+    </button>
+
+    <!-- Nomor halaman -->
+    <button v-for="page in totalPages" :key="page" @click="changePage(page)" class="px-4 py-2 rounded transition-all"
+      :class="{
+        'bg-[#466543] hover:bg-[#3B4F3A] text-white font-bold': currentPage === page,
+        'bg-[#466543] text-white hover:bg-[#3B4F3A]': currentPage !== page
+      }">
+      {{ page }}
+    </button>
+
+    <!-- Tombol "Next" hanya muncul jika belum di halaman terakhir -->
+    <button v-if="currentPage < totalPages" @click="changePage(currentPage + 1)"
+      class="px-4 py-2 bg-[#466543] text-white hover:bg-[#3B4F3A] rounded">
+      Next
+    </button>
   </div>
 </template>

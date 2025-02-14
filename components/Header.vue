@@ -3,8 +3,9 @@
 const config = useRuntimeConfig();  // Get the runtime config
 const apiUrl = config.public.apiBase; // Access the API base URL
 
-// State for dropdown
+// State
 const isDropdownOpen = ref(false);
+const isLogoutModalOpen = ref(false);
 const user = ref(null);
 
 // Cookies for token and user
@@ -20,29 +21,23 @@ if (userCookie.value) {
         user.value = typeof userCookie.value === "string" ? JSON.parse(userCookie.value) : userCookie.value;
     } catch (error) {
         console.error("Error parsing user cookie:", error);
-        user.value = null; // Reset if parsing fails
+        user.value = null;
     }
 }
 
-// Function to fetch user details
+// Fetch user details
 const fetchUserDetails = async () => {
     try {
         const { data, error } = await useFetch(`${apiUrl}/api/user/details`);
-
         if (error.value) {
             console.error("Error fetching user details:", error.value);
             return;
         }
-
         if (data.value?.user) {
             const fetchedUser = data.value.user;
-
-            // Construct full profile image URL
             if (fetchedUser.profile_image) {
                 fetchedUser.profile_image = `${apiUrl}/storage/${fetchedUser.profile_image}`;
             }
-
-            console.log("Fetched user:", fetchedUser); // Debug log
             user.value = fetchedUser;
         }
     } catch (error) {
@@ -50,97 +45,71 @@ const fetchUserDetails = async () => {
     }
 };
 
-// Fetch user details when the component is mounted
+// Fetch user details when mounted
 onMounted(async () => {
     if (isAuthenticated.value) {
         await fetchUserDetails();
     }
 });
 
-// Get the image URL or return the default icon
+// Get image URL or default icon
 const getImageUrl = (imagePath) => {
-    console.log('Original Image Path:', imagePath);
-    
-    if (!imagePath) {
-        console.log('No image path, using default icon');
-        return userIconSvg;
-    }
-    
-    if (imagePath.startsWith('http')) {
-        console.log('Full URL image:', imagePath);
-        return imagePath;
-    }
-    
-    const fullUrl = `${apiUrl}/storage/${imagePath}`;
-    console.log('Constructed Full URL:', fullUrl);
-    
-    return fullUrl || userIconSvg;
+    if (!imagePath) return userIconSvg;
+    return imagePath.startsWith('http') ? imagePath : `${apiUrl}/storage/${imagePath}`;
 };
 
-// Toggle dropdown visibility
+// Toggle dropdown
 const toggleDropdown = () => {
     isDropdownOpen.value = !isDropdownOpen.value;
 };
 
+// Open Logout Modal
+const openLogoutModal = () => {
+    isLogoutModalOpen.value = true;
+};
+
+// Confirm Logout
+const confirmLogout = async () => {
+    isLogoutModalOpen.value = false;
+    await handleLogout();
+};
+
 // Logout function
 const handleLogout = async () => {
-    if (!tokenCookie.value) {
-        console.error("No token available for logout.");
-        return;
-    }
-
+    if (!tokenCookie.value) return;
     try {
-        // Call the backend logout endpoint
-        const { error } = await $fetch(`${apiUrl}/api/logout`, {
+        await $fetch(`${apiUrl}/api/logout`, {
             method: "POST",
-            headers: {
-                Authorization: `Bearer ${tokenCookie.value}`,
-            },
+            headers: { Authorization: `Bearer ${tokenCookie.value}` },
         });
-
-        if (error.value) {
-            console.error("Error during logout:", error.value);
-        } else {
-            console.log("Logged out successfully from the backend.");
-        }
     } catch (error) {
-        console.error("An error occurred while logging out:", error);
+        console.error("Error during logout:", error);
     } finally {
-        // Clear cookies
         tokenCookie.value = null;
         userCookie.value = null;
-
-        // Reset user state
         user.value = null;
-
-        // Redirect to login page
         navigateTo("/login");
     }
 };
+
 // Export user ref
 defineExpose({ user });
 </script>
 
 <template>
-    <!-- Header -->
     <div class="flex justify-between items-center px-12 py-5 border-b border-gray-200 bg-white">
-        <!-- Logo -->
         <NuxtLink to="/">
             <img src="/img/image 15.png" alt="Logo" class="h-10" />
         </NuxtLink>
-
-        <!-- Conditional Rendering -->
         <div class="flex space-x-4">
             <template v-if="isAuthenticated">
-                <!-- Profile Dropdown -->
                 <div class="relative">
                     <button @click="toggleDropdown"
                         class="flex items-center space-x-2 text-gray-800 hover:text-gray-600">
-                        <!-- Profile Image or Default Icon -->
                         <div
                             class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
-                            <img v-if="user?.profile_image && user?.profile_image !== ''" :src="getImageUrl(user?.profile_image)"
-                                alt="User Avatar" class="w-full h-full object-cover" />
+                            <img v-if="user?.profile_image" :src="getImageUrl(user?.profile_image)" alt="User Avatar"
+                                class="w-full h-full object-cover" />
                             <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 class="text-gray-500 w-6 h-6">
                                 <path fill="currentColor"
@@ -148,8 +117,6 @@ defineExpose({ user });
                             </svg>
                         </div>
                         <span>{{ user?.name || "User" }}</span>
-
-                        <!-- Dropdown Icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                             class="w-5 h-5 text-gray-500 ml-1">
                             <path fill="currentColor" d="M7 10l5 5 5-5z" />
@@ -159,35 +126,47 @@ defineExpose({ user });
                         class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
                         <ul>
                             <li>
-                                <NuxtLink to="/profile" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                                    Profile
+                                <NuxtLink to="/profile" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Profile
                                 </NuxtLink>
                             </li>
                             <li>
-                                <button @click="handleLogout"
-                                    class="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100">
-                                    Logout
-                                </button>
+                                <button @click="openLogoutModal"
+                                    class="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100">Logout</button>
                             </li>
                         </ul>
                     </div>
                 </div>
             </template>
             <template v-else>
-                <!-- Buttons for Register and Login -->
                 <NuxtLink to="/register">
                     <button
-                        class="h-10 px-4 text-[#4C6248] border border-[#4C6248] rounded-md text-sm font-medium hover:bg-[#F6F8F4] focus:outline-none focus:ring-2 focus:ring-[#4C6248]">
-                        Register
-                    </button>
+                        class="h-10 px-4 text-[#4C6248] border border-[#4C6248] rounded-md text-sm font-medium hover:bg-[#F6F8F4]">Register</button>
                 </NuxtLink>
                 <NuxtLink to="/login">
                     <button
-                        class="h-10 px-4 text-white bg-[#4C6248] rounded-md text-sm font-medium hover:bg-[#3B4F3A] focus:outline-none focus:ring-2 focus:ring-[#4C6248]">
-                        Login
-                    </button>
+                        class="h-10 px-4 text-white bg-[#4C6248] rounded-md text-sm font-medium hover:bg-[#3B4F3A]">Login</button>
                 </NuxtLink>
             </template>
         </div>
     </div>
+
+    <Transition name="fade">
+        <div v-if="isLogoutModalOpen"
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+            <div class="bg-white p-8 w-80">
+                <h2 class="text-2xl text-center font-bold mb-4">Logout</h2>
+                <p class="text-[#212121] text-center mb-6">Are you sure you want to logout?</p>
+                <div class="flex justify-center gap-8 mt-6">
+                    <button @click="isLogoutModalOpen = false"
+                        class="w-28 py-2 border border-[#466543] text-[#466543] rounded-lg text-lg font-medium hover:text-black hover:border-black transition">
+                        Cancel
+                    </button>
+                    <button @click="confirmLogout"
+                        class="w-28 py-2 bg-[#466543] text-white rounded-lg text-md font-medium hover:bg-[#3b5739]">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Transition>
 </template>
