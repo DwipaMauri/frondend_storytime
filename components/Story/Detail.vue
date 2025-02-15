@@ -1,5 +1,4 @@
 <script setup>
-// Menerima data story lewat props (pastikan tipe datanya Object)
 const props = defineProps({
     storiesId: {
         type: Object,
@@ -12,9 +11,10 @@ const token = useCookie('token').value;
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
-
 const currentIndex = ref(0);
 const isModalOpen = ref(false);
+
+const isBookmarked = computed(() => bookmarkedStories.value.has(props.storiesId.id));
 
 // Fetch initial bookmark status
 const fetchBookmarkedStories = async () => {
@@ -28,12 +28,15 @@ const fetchBookmarkedStories = async () => {
             }
         });
         bookmarkedStories.value = new Set(bookmarks.map(bookmark => bookmark.story_id));
+
+        // Simpan ke localStorage
+        localStorage.setItem('bookmarkedStories', JSON.stringify(Array.from(bookmarkedStories.value)));
     } catch (error) {
         console.error('Error fetching bookmarks:', error);
     }
 };
 
-// Toggle bookmark
+// Toggle Bookmark
 const toggleBookmark = async (storyId) => {
     if (!token) {
         alert('You need to log in to toggle a bookmark.');
@@ -41,86 +44,60 @@ const toggleBookmark = async (storyId) => {
     }
 
     try {
-        // Make sure to use the full API URL
         const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: {  // Remove JSON.stringify since $fetch handles this automatically
-                story_id: storyId
-            }
+            body: { story_id: storyId }
         });
 
-        // Update local state based on response
         if (response.is_bookmarked) {
             bookmarkedStories.value.add(storyId);
         } else {
             bookmarkedStories.value.delete(storyId);
         }
 
-        // Show success message from backend
-        alert(response.message);
+        // Update localStorage
+        localStorage.setItem('bookmarkedStories', JSON.stringify(Array.from(bookmarkedStories.value)));
 
+        alert(response.message);
     } catch (error) {
         console.error('Error toggling bookmark:', error);
-        if (error.response?.status === 401) {
-            alert('You need to log in to toggle a bookmark.');
-        } else {
-            alert(error.data?.message || 'An error occurred while toggling bookmark.');
-        }
+        alert(error.data?.message || 'An error occurred while toggling bookmark.');
     }
 };
 
-// Initialize bookmarks on component mount
+// Ambil bookmark dari localStorage saat mounted
 onMounted(() => {
+    const storedBookmarks = JSON.parse(localStorage.getItem('bookmarkedStories'));
+    if (storedBookmarks) {
+        bookmarkedStories.value = new Set(storedBookmarks);
+    }
     fetchBookmarkedStories();
-});
-
-// Buka modal dan set gambar yang diklik
-const handleOpenModal = (index) => {
-    currentIndex.value = index;
-    isModalOpen.value = true;
-};
-
-// Tutup modal
-const handleCloseModal = () => {
-    isModalOpen.value = false;
-};
-
-// Navigasi ke gambar sebelumnya
-const prevImage = () => {
-    if (currentIndex.value > 0) {
-        currentIndex.value--;
-    }
-};
-
-// Navigasi ke gambar berikutnya
-const nextImage = () => {
-    if (currentIndex.value < props.storiesId.content_images.length - 1) {
-        currentIndex.value++;
-    } else {
-        currentIndex.value = 0; // Loop kembali ke gambar pertama
-    }
-};
-
-onMounted(() => {
-    if (props.storiesId?.content_images) {
-        images.value = props.storiesId.content_images;
-    }
 });
 
 // Format tanggal agar lebih mudah dibaca
 const formatDate = (dateString) => {
     if (!dateString) return null;
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
+    return new Date(dateString).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'long',
         year: 'numeric',
     });
 };
+
+// onMounted(fetchBookmarkedStories);
+
+// Modal dan navigasi gambar
+const handleOpenModal = (index) => {
+    currentIndex.value = index;
+    isModalOpen.value = true;
+};
+const handleCloseModal = () => (isModalOpen.value = false);
+const prevImage = () => (currentIndex.value = (currentIndex.value - 1 + props.storiesId.content_images.length) % props.storiesId.content_images.length);
+const nextImage = () => (currentIndex.value = (currentIndex.value + 1) % props.storiesId.content_images.length);
 </script>
 
 <template>
@@ -149,8 +126,8 @@ const formatDate = (dateString) => {
 
         <div class="relative">
             <button @click="toggleBookmark(storiesId.id)"
-                class="absolute top-5 right-14 w-12 h-12 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-300"
-                :class="bookmarkedStories.has(storiesId.id) ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
+                class="absolute top-5 right-14 w-12 h-12 flex items-center justify-center rounded-full transition-colors duration-300"
+                :class="isBookmarked ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
                     <transition name="fade-scale" mode="out-in">
                         <path v-if="bookmarkedStories.has(storiesId.id)" key="bookmarked" fill="white"

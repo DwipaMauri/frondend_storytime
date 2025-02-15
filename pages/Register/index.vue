@@ -15,6 +15,8 @@ onMounted(() => {
 });
 
 // State for registration
+const user = ref(null);
+const token = ref(null);
 const registerState = reactive({
   name: "",
   username: "",
@@ -57,20 +59,27 @@ const handleRegister = async () => {
         password: registerState.password,
         password_confirmation: registerState.password_confirmation,
       },
+      credentials: "include",
     });
 
     // Handle successful response
     if (response) {
+      // Set user in state
+      user.value = response.user;
+      token.value = response.token;
+
       // Set cookies
       const userCookie = useCookie("user", {
         maxAge: 7 * 24 * 60 * 60,
         secure: true,
         httpOnly: false,
+        sameSite: "strict",
       });
       const tokenCookie = useCookie("token", {
         maxAge: 7 * 24 * 60 * 60,
         secure: true,
         httpOnly: false,
+        sameSite: "strict",
       });
 
       // Store stringified user and token
@@ -101,7 +110,7 @@ const handleRegister = async () => {
       <div class="p-8 bg-green-50 flex flex-col justify-between items-start">
         <!-- Logo -->
         <div class="mb-6">
-          <img src="public/img/imag+e 15.png" alt="Storytime Logo" class="h-10" />
+          <img src="public/img/image 15.png" alt="Storytime Logo" class="h-10" />
         </div>
 
         <!-- Teks Deskripsi -->
@@ -178,7 +187,7 @@ const handleRegister = async () => {
                 class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                   stroke="currentColor" class="w-5 h-5 text-gray-500 mr-3">
-                  <path stroke -linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-.6 1.857-1.82 3.405-3.458 4.434" />
                 </svg>
