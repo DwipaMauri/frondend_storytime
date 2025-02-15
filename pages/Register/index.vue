@@ -9,6 +9,9 @@ onMounted(() => {
   const userCookie = useCookie("user");
 
   if (tokenCookie.value && userCookie.value) {
+    // Tampilkan alert sukses
+    alert(response.message || "User registered successfully.");
+
     // If token exists, redirect to home/dashboard
     navigateTo("/");
   }

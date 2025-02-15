@@ -76,6 +76,9 @@ const handleLogin = async () => {
       userCookie.value = JSON.stringify(response.user);
       tokenCookie.value = response.token;
 
+      // Tampilkan alert sukses
+      alert(response.message || "User logged in successfully.");
+
       // Redirect to home page
       navigateTo("/");
     }
