@@ -1,4 +1,6 @@
 <script setup>
+import RichEditor from "~/components/rich-editor.vue";
+
 // API Call
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
@@ -238,9 +240,12 @@ onMounted(() => {
             <!-- Content Input -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-3">Content</label>
-                <textarea v-model="content" rows="6" placeholder="Enter content here"
+                <!-- <textarea v-model="content" rows="6" placeholder="Enter content here"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    :class="{ 'border-red-500': errors.content }"></textarea>
+                    :class="{ 'border-red-500': errors.content }"></textarea> -->
+                <client-only>
+                    <rich-editor v-model="content" />
+                </client-only>
                 <p v-if="errors.content" class="text-red-500 text-sm mt-1">{{ errors.content }}</p>
             </div>
 
