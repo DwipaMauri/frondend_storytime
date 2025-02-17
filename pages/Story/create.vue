@@ -1,7 +1,5 @@
 <script setup>
-// import { ref, onMounted, watch } from 'vue';
-// import { useRouter } from 'vue-router';
-// import { useRuntimeConfig, useCookie } from '#app';
+import RichEditor from "~/components/rich-editor.vue";
 
 // API URL
 const config = useRuntimeConfig();
@@ -25,39 +23,6 @@ const router = useRouter();
 const triggerFileInput = () => {
     if (fileInput.value) fileInput.value.click();
 };
-
-// Handle file input for cover image
-// const handleFileChange = (event) => {
-//     const file = event.target.files[0];
-//     if (file) {
-//         const reader = new FileReader();
-//         reader.onload = (e) => {
-//             imagePreview.value = e.target.result;
-//         };
-//         reader.readAsDataURL(file);
-//         contentImages.value = [file];
-//         coverImage.value = file;
-//     }
-// };
-// Handle file input for multiple content images
-
-// const handleFileChange = (event) => {
-//     const files = Array.from(event.target.files); // Ambil semua file yang dipilih
-//     if (files && files.length > 0) {
-//         files.forEach((file) => {
-//             const reader = new FileReader();
-//             reader.onload = (e) => {
-//                 // Opsional: Jika ingin menampilkan preview setiap gambar
-//                 console.log('Image Preview:', e.target.result);
-//             };
-//             reader.readAsDataURL(file);
-//             contentImages.value.push(file); // Tambahkan setiap file ke contentImages
-//         });
-
-//         // Jika Anda ingin menyimpan cover image sebagai gambar pertama:
-//         coverImage.value = files[0];
-//     }
-// };
 
 const handleFileChange = (event) => {
     const files = Array.from(event.target.files); // Ambil semua file yang dipilih
@@ -100,50 +65,6 @@ onMounted(async () => {
         console.error('Failed to load stories:', error);
     }
 });
-
-// Create story
-// const createStory = async () => {
-//     errors.value = {};
-
-//     // Validation
-//     if (!title.value.trim()) errors.value.title = 'Title is required';
-//     if (!content.value.trim()) errors.value.content = 'Content is required';
-//     if (!categoryId.value) errors.value.category = 'Category is required';
-
-//     if (Object.keys(errors.value).length > 0) return;
-
-//     const formData = new FormData();
-//     formData.append('title', title.value);
-//     formData.append('content', content.value);
-//     formData.append('category_id', categoryId.value);
-
-
-
-//     if (contentImages.value) formData.append('content_images', contentImages.value);
-//         contentImages.value.forEach((image, index) => {
-//             formData.append(`content_images[${index}]`, image);
-//     });
-
-//     isLoading.value = true;
-//     try {
-//         const response = await $fetch(`${apiUrl}/api/stories`, {
-//             method: 'POST',
-//             body: formData,
-//             headers: {
-//                 'Authorization': `Bearer ${useCookie('token').value}`,
-//             },
-//         });
-
-//         console.log('Story created:', response);
-//         alert('Story created successfully!');
-//         router.push('/profile');
-//     } catch (error) {
-//         console.error('Story creation failed:', error);
-//         alert('Failed to create story. Please try again.');
-//     } finally {
-//         isLoading.value = false;
-//     }
-// };
 
 const createStory = async () => {
     errors.value = {};
@@ -241,9 +162,12 @@ const createStory = async () => {
             <!-- Content Input -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-3">Content</label>
-                <textarea v-model="content" rows="6" placeholder="Enter content here"
+                <!-- <textarea v-model="content" rows="6" placeholder="Enter content here"
                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    :class="{ 'border-red-500': errors.content }"></textarea>
+                    :class="{ 'border-red-500': errors.content }"></textarea> -->
+                <client-only>
+                    <rich-editor v-model="content" />
+                </client-only>
                 <p v-if="errors.content" class="text-red-500 text-sm mt-1">{{ errors.content }}</p>
             </div>
 
@@ -280,7 +204,8 @@ const createStory = async () => {
                     </div>
 
                     <!-- Hidden file input -->
-                    <input type="file" multiple @change="handleFileChange" ref="fileInput" class="hidden" accept="image/*" />
+                    <input type="file" multiple @change="handleFileChange" ref="fileInput" class="hidden"
+                        accept="image/*" />
                 </div>
             </div>
 

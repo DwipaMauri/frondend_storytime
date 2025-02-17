@@ -1,6 +1,4 @@
 <script setup>
-import { onMounted } from 'vue';
-
 // Default image if there's no image
 const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='currentColor' d='M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4'/></svg>`;
 
@@ -33,42 +31,6 @@ const closeDeleteModal = () => {
     storyToDelete.value = null;
     isDeleteModalVisible.value = false;
 };
-
-// Function to delete the story
-// const deleteStory = async () => {
-//     if (!storyToDelete.value) return;
-
-//     try {
-//         // Call the delete API
-//         const response = await $fetch(`${apiUrl}/api/stories/${storyToDelete.value.id}`, {
-//             method: "DELETE",
-//             headers: {
-//                 Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-//             },
-//         });
-
-//         // Check API response
-//         if (response?.message === "Story deleted successfully") {
-//             // Remove story from the list
-//             const index = props.userStories.findIndex(
-//                 (story) => story.id === storyToDelete.value.id
-//             );
-//             if (index !== -1) props.userStories.splice(index, 1);
-
-//             // Notify the user (optional: toast)
-//             alert("Story successfully deleted!");
-
-//             // Close modal
-//             closeDeleteModal();
-//         } else {
-//             console.error("Failed to delete the story:", response?.message || "Unknown error");
-//             alert("Failed to delete the story. Please try again.");
-//         }
-//     } catch (error) {
-//         console.error("Error deleting story:", error.message || error);
-//         alert("An error occurred while deleting the story. Please try again.");
-//     }
-// };
 
 const isLoading = ref(false);
 
@@ -163,11 +125,6 @@ onMounted(async () => {
     fetchBookmarkStatus();
 });
 
-// Function to navigate to the edit story page
-// const navigateToEdit = (storyId) => {
-//     router.push(`/story/edit/${storyId}`);
-// };
-
 // Function to toggle bookmark status
 const toggleBookmark = async (story) => {
     console.log("Toggling bookmark for story:", story);
@@ -258,9 +215,12 @@ const toggleBookmark = async (story) => {
                 {{ story.title }}
             </h2>
             <div class="mt-4">
-                <p class="text-gray-600 text-sm flex-grow">
+                <!-- <p class="text-gray-600 text-sm flex-grow" >
                     {{ story.preview_content || "No preview content available." }}
+                </p> -->
+                <p class="text-gray-600 text-sm flex-grow" v-if="story.preview_content" v-html="story.preview_content">
                 </p>
+                <p class="text-gray-600 text-sm flex-grow" v-else>No preview content available.</p>
             </div>
             <div class="mt-5 flex justify-between items-center">
                 <span class="bg-[#F0F5ED] text-[#466543] px-3 py-1 rounded-md">
