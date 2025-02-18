@@ -1,15 +1,16 @@
 <script setup>
-// API Call
+// API Call diambil dari runtime config
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 // console.log(apiUrl);
 
+//Data yang sudah didapat dari API disimpan dalam variabel reaktif
 const stories = ref([]);
 const userName = ref('');
 
 // Fetch stories function
 const fetchStories = async () => {
-  console.log('Attempting to fetch from URL:', `${apiUrl}/api/stories`);
+  // console.log('Attempting to fetch from URL:', `${apiUrl}/api/stories`);
   try {
     const response = await $fetch(`${apiUrl}/api/stories`, {
       headers: {
@@ -40,14 +41,15 @@ onMounted(async () => {
   // Fetch stories dari API
   await fetchStories();
 
-  // Ambil data user dari localStorage
+  // Ambil data user dari cookie
   const storedUser = useCookie('user').value;
+  //Jika cookie user ditemukan maka userName akan diperbarui 
   if (storedUser) {
     userName.value = storedUser.name;
   }
 });
 
-// Computed properties for filtered stories
+// Computed properties for filtered stories berdasarkan kategori
 const comedyStories = computed(() => {
   return stories.value ? stories.value.filter(story => story.category.name === 'Comedy') : [];
 });
@@ -64,10 +66,10 @@ const searchQuery = ref("")
 // Use router for programmatic navigation
 const router = useRouter()
 
-// Handle the search when Enter key is pressed
+// Handle the search when Enter key is pressed (Jika pengguna menekan Enter, fungsi handleSearch dijalankan)
 const handleSearch = () => {
   if (searchQuery.value.trim() !== "") {
-    router.push({ path: '/AllStories', query: { Search: searchQuery.value } })
+    router.push({ path: '/AllStories', query: { Search: searchQuery.value } }) //Saat halaman AllStories dimuat, aplikasi akan membaca parameter search dari URL
   } else {
     router.push('/AllStories')
   }
@@ -83,7 +85,7 @@ const handleSearch = () => {
     <!-- Heading -->
     <p v-if="userName"
       class="text-4xl sm:text-3xl md:text-4xl font-bold mb-4 text-black drop-shadow-lg font-serif text-center">
-      Annyeonghaseyo, {{ userName }}!
+      Hi, {{ userName }}!
     </p>
 
     <h2 class="text-4xl sm:text-3xl md:text-4xl font-bold mb-4 text-black drop-shadow-lg font-serif text-center">Welcome
@@ -149,6 +151,7 @@ const handleSearch = () => {
 
     <!-- Line Separator -->
     <div class="border-b border-gray-300 my-2 mx-4"></div>
+    <!-- Data ini ditampilkan dalam komponen -->
     <!-- Story Card Latest Story -->
     <div class="px-4 py-4">
       <!-- Latest Story -->
@@ -242,10 +245,6 @@ const handleSearch = () => {
             <path d="M14 6l6 6-6 6"></path>
           </svg>
         </NuxtLink>
-        <!-- <div class="flex items-center cursor-pointer hover:text-black">
-          <span class="text-sm text-gray-500 hover:text-black">Explore More</span>
-          <img src="public/img/next.png" alt="next" class="w-4 h-4 ml-1" />
-        </div> -->
       </div>
 
       <!-- Line Separator -->

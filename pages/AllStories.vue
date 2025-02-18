@@ -14,7 +14,7 @@ const selectedCategory = ref(categoryName);
 const stories = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
-const perPage = 10;
+const perPage = 9;
 const bookmarkedStories = ref(new Set()); // State untuk menyimpan daftar bookmark
 
 // Fetch Stories with Filters and Pagination

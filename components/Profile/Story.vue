@@ -215,9 +215,6 @@ const toggleBookmark = async (story) => {
                 {{ story.title }}
             </h2>
             <div class="mt-4">
-                <!-- <p class="text-gray-600 text-sm flex-grow" >
-                    {{ story.preview_content || "No preview content available." }}
-                </p> -->
                 <p class="text-gray-600 text-sm flex-grow" v-if="story.preview_content" v-html="story.preview_content">
                 </p>
                 <p class="text-gray-600 text-sm flex-grow" v-else>No preview content available.</p>

@@ -15,7 +15,7 @@ const bookmarkedStories = ref(new Set());
 
 const currentPage = ref(1);
 const totalPages = ref(1);
-const perPage = 10;
+const perPage = 3;
 
 // Fetch Stories
 const fetchStories = async () => {

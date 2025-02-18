@@ -3,7 +3,7 @@ import { resolve } from "path";
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-02-16", // Menggunakan tanggal terbaru
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   alias: {
     "@": resolve(__dirname, "/"),

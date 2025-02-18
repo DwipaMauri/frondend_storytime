@@ -162,9 +162,6 @@ const createStory = async () => {
             <!-- Content Input -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-3">Content</label>
-                <!-- <textarea v-model="content" rows="6" placeholder="Enter content here"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    :class="{ 'border-red-500': errors.content }"></textarea> -->
                 <client-only>
                     <rich-editor v-model="content" />
                 </client-only>

@@ -7,6 +7,7 @@ const apiUrl = config.public.apiBase;
 const user = ref(null);
 const token = ref(null);
 const showPassword = ref(false);
+//Saat user mengisi form, datanya disimpan di dalam loginstate
 const loginState = reactive({
   username_or_email: "",
   password: "",
@@ -30,22 +31,22 @@ const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
 }
 
-// Login handler
+// Login handler dipanggil ketika login ditekan 
 const handleLogin = async () => {
   // Reset previous state
-  loginState.error = "";
-  loginState.isLoading = true;
+  loginState.error = ""; //Mengosongkan pesan error (loginState.error = "")
+  loginState.isLoading = true; //Menampilkan status loading (loginState.isLoading = true
 
   try {
     // API call to login
-    console.log("Url to fetch:", `${apiUrl}/api/login`);
+    // console.log("Url to fetch:", `${apiUrl}/api/login`);
     // const response = await $fetch('http://localhost:8000/api/login', {
-    const response = await $fetch(`${apiUrl}/api/login`, {
-      method: "POST",
+    const response = await $fetch(`${apiUrl}/api/login`, { //Mengirim request ke backend dengan $fetch()
+      method: "POST", //Mengirim data username/email dan password ke backend
       headers: {
         "Content-Type": "application/json",
       },
-      body: {
+      body: { //Data login user yang akan diverifikasi di BE
         username_or_email: loginState.username_or_email,
         password: loginState.password,
       },
@@ -58,19 +59,19 @@ const handleLogin = async () => {
       user.value = response.user; // Assuming user object is returned
       token.value = response.token;
 
-      // Store in cookies (secure storage)
+      //Menyimpan data user dan token di cookies
       const userCookie = useCookie("user", {
-        maxAge: 7 * 24 * 60 * 60,
-        secure: true,
-        httpOnly: false,
-        sameSite: 'Strict',
+        maxAge: 7 * 24 * 60 * 60, //Cookie akan bertahan selama 7 hari
+        secure: true, //Hanya dikirim melalui HTTPS
+        httpOnly: false, //Bisa diakses dari JavaScript
+        sameSite: 'Strict', //Mencegah cookie dikirim ke situs lain
       });
       const tokenCookie = useCookie("token", {
         maxAge: 7 * 24 * 60 * 60,
         secure: true,
         httpOnly: false,
         sameSite: 'Strict',
-      });
+      }); //Jika response berhasil diterima, data user dan token disimpan di cookies
 
       // Store stringified user and token
       userCookie.value = JSON.stringify(response.user);
@@ -84,7 +85,7 @@ const handleLogin = async () => {
     }
   } catch (err) {
     // Handle error from API
-    loginState.error = err.data?.message || err.message || "Login failed. Please try again.";
+    loginState.error = err.data?.message || err.message || "Login failed. Please try again."; //Jika BE mengembalikan error, error ditampilkan di halaman login
     console.error("Login error:", err);
   } finally {
     // Reset loading state

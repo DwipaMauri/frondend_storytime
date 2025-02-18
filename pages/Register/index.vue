@@ -17,10 +17,10 @@ onMounted(() => {
   }
 });
 
-// State for registration
+// State for registration frontend menerima data user dan token, Token dan user juga disimpan di cookie agar sesi tetap ada meskipun halaman di-refresh
 const user = ref(null);
 const token = ref(null);
-const registerState = reactive({
+const registerState = reactive({ //Data disimpan dalam state reactive
   name: "",
   username: "",
   email: "",
@@ -45,16 +45,16 @@ const togglePasswordVisibility = (field) => {
 };
 
 // Registration handler
-const handleRegister = async () => {
+const handleRegister = async () => { //Mengatur cookies untuk menyimpan data pengguna dan token
   // Reset previous states
-  registerState.error = "";
+  registerState.error = ""; //Mengatur ulang error dan state loading
   registerState.errors = {};
   registerState.isLoading = true;
 
   try {
     // API call to register
-    const response = await $fetch(`${apiUrl}/api/register`, {
-      method: "POST",
+    const response = await $fetch(`${apiUrl}/api/register`, { //Backend memiliki endpoint POST /api/register, yang menerima data pengguna yang dikirim dari frontend
+      method: "POST", 
       body: {
         name: registerState.name,
         username: registerState.username,

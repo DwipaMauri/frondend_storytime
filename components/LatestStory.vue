@@ -28,7 +28,7 @@ const fetchBookmarkedStories = async () => {
     if (!token) return;
 
     try {
-        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, { //Mendapatkan daftar cerita yang telah di-bookmark oleh pengguna
             method: 'GET',
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -50,7 +50,7 @@ const saveToLocalStorage = async () => {
 
 // Ambil daftar bookmark saat komponen dipasang
 onMounted(() => {
-    fetchBookmarkedStories();
+    fetchBookmarkedStories(); 
 });
 
 // Handle klik bookmark
@@ -65,7 +65,7 @@ const handleBookmarkClick = (storyId) => {
 // Toggle bookmark
 const toggleBookmark = async (storyId) => {
     try {
-        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, { //Menambah atau menghapus cerita dari bookmark
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
