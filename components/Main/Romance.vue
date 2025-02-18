@@ -11,7 +11,7 @@ const props = defineProps({
 });
 
 // State untuk menyimpan daftar bookmark lokal
-const bookmarkedStories = ref([]);
+const bookmarkedStories = ref([]); //array yang menyimpan daftar story_id yang telah di-bookmark oleh pengguna
 const token = useCookie('token').value;
 
 const handleBookmarkClick = (storyId) => {
@@ -52,7 +52,7 @@ const toggleBookmark = async (storyId) => {
 };
 
 // Muat bookmarkedStories dari localStorage saat komponen di-mount
-onMounted(() => {
+onMounted(() => { //Ketika komponen pertama kali dimuat (onMounted), bookmark yang tersimpan di localStorage akan dimuat ke dalam bookmarkedStories
     const storedBookmarks = localStorage.getItem('bookmarkedStories');
     if (storedBookmarks) {
         bookmarkedStories.value = JSON.parse(storedBookmarks);
@@ -82,9 +82,10 @@ const formatDate = (dateString) => {
 };
 </script>
 
+// v-for digunakan untuk mengulang daftar cerita dan menampilkan masing-masing cerita dalam card
 <template>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-12">
-        <div v-for="(story, index) in stories.slice(0, 3)" :key="index" class="rounded-lg overflow-hidden group">
+        <div v-for="(story, index) in stories.slice(0, 3)" :key="index" class="rounded-lg overflow-hidden group"> 
             <div class="relative">
                 <NuxtLink :to="`/detail/${story.id}`">
                     <img :src="getImageUrl(story.content_images[0])" :alt="story.title"

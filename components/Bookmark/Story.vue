@@ -33,12 +33,12 @@ const fetchBookmarkedStories = async () => {
     if (!token) return;
 
     try {
-        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, { //Jika ada bookmark yang tersimpan di localStorage, itu akan dimuat dulu ke dalam state bookmarkedStories (agar cepat ditampilkan)
             method: 'GET',
             headers: { Authorization: `Bearer ${token}` }
         });
 
-        bookmarkedStories.value = new Set(bookmarks.map(b => b.story_id));
+        bookmarkedStories.value = new Set(bookmarks.map(b => b.story_id)); //Backend akan mengembalikan daftar stories yang telah di-bookmark oleh pengguna
         saveToLocalStorage();
     } catch (error) {
         console.error('Error fetching bookmarks:', error);

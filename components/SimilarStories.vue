@@ -29,23 +29,23 @@ const formatDate = (dateString) => {
 
 const fetchStories = async () => {
     try {
-        const response = await $fetch(`${apiUrl}/api/stories`, {
+        const response = await $fetch(`${apiUrl}/api/stories`, { //$fetch untuk pengelolaan data secara 
             headers: { 'Content-Type': 'application/json' },
         });
         const storiesData = response.data || response;
-        console.log("Fetched stories:", storiesData);
+        // console.log("Fetched stories:", storiesData);
 
-        similarStories.value = storiesData.filter((story) => {
-            if (story.category && props.currentStory.category) {
+        similarStories.value = storiesData.filter((story) => { //Data story yang diterima, difilter berdasarkan category (story.category.id)
+            if (story.category && props.currentStory.category) { //agar hanya menampilkan story yang serupa 
                 return (
                     String(story.category.id) === String(props.currentStory.category.id) &&
-                    story.id !== props.currentStory.id
+                    story.id !== props.currentStory.id //Hanya untuk story yang sedang dibuka 
                 );
             }
             return false;
         });
 
-        console.log("Filtered similar stories:", similarStories.value);
+        // console.log("Filtered similar stories:", similarStories.value);
     } catch (error) {
         console.error("Error fetching similar stories:", error);
     }
@@ -59,7 +59,7 @@ onMounted(() => {
     }
 });
 
-watch(
+watch( //Untuk memperbarui story saat pengguna berpindah halaman
     () => props.currentStory,
     (newVal) => {
         if (newVal && newVal.category) {
@@ -69,7 +69,6 @@ watch(
     { immediate: true }
 );
 
-// === Bagian Toggle Bookmark (diambil dari kode kedua) ===
 const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='currentColor' d='M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4'/></svg>`;
 
 const bookmarkedStories = ref(new Set());

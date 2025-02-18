@@ -5,8 +5,8 @@ const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
-const props = defineProps({
-    stories: {
+const props = defineProps({ //menerima stories sebagai properti dari parent component atau dari server-side rendering (SSR)
+    stories: { //berisi daftar cerita yang ditampilkan di halaman
         type: Array,
         required: true
     }
@@ -16,9 +16,9 @@ const props = defineProps({
 const bookmarkedStories = ref([]);
 const token = useCookie('token').value;
 
-const handleBookmarkClick = (storyId) => {
+const handleBookmarkClick = (storyId) => { //Jika pengguna belum login (token tidak ada)
     if (!token) {
-        alert('You need to log in to toggle a bookmark.');
+        alert('You need to log in to toggle a bookmark.'); //Jika user tidak mendapatkan token 
         return;
     }
     toggleBookmark(storyId);
@@ -32,10 +32,10 @@ onMounted(() => {
     }
 });
 
-const toggleBookmark = async (storyId) => {
+const toggleBookmark = async (storyId) => { //Jika pengguna sudah login, fungsi toggleBookmark(storyId) dipanggil
     try {
         const token = useCookie('token').value;
-        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, { //Jika user memiliki token, mengirim request HTTP POST ke backend menggunakan $fetch
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -63,12 +63,12 @@ const toggleBookmark = async (storyId) => {
 };
 
 // Fungsi untuk mendapatkan URL gambar
-const getImageUrl = (image) => {
+const getImageUrl = (image) => { //Jika image.url tidak dimulai dengan http, maka gambar berasal dari penyimpanan backend (storage/)
     const imagePath = image && typeof image === 'object' ? image.url : '';
     if (imagePath && !imagePath.startsWith('http')) {
         return `${apiUrl}/storage/${imagePath}`;
     }
-    return imagePath || userIconSvg;
+    return imagePath || userIconSvg; //Jika tidak ada gambar, digunakan ikon default userIconSvg
 };
 
 // Fungsi untuk memformat tanggal

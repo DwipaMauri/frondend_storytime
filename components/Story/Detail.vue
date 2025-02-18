@@ -18,15 +18,17 @@ const isBookmarked = computed(() => bookmarkedStories.value.has(props.storiesId.
 
 // Fetch initial bookmark status
 const fetchBookmarkedStories = async () => {
-    if (!token) return;
+    if (!token) return; 
     try {
-        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, { //Mengambil daftar cerita yang telah dibookmark oleh pengguna
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
+
+        //Menyimpan data bookmark ke state
         bookmarkedStories.value = new Set(bookmarks.map(bookmark => bookmark.story_id));
 
         // Simpan ke localStorage
@@ -44,7 +46,7 @@ const toggleBookmark = async (storyId) => {
     }
 
     try {
-        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, { //Untuk menambah atau menghapus story dari bookmark pengguna
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,
