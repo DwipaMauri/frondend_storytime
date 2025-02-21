@@ -5,8 +5,8 @@ const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
-const props = defineProps({ //menerima stories sebagai properti dari parent component atau dari server-side rendering (SSR)
-    stories: { //berisi daftar cerita yang ditampilkan di halaman
+const props = defineProps({
+    stories: {
         type: Array,
         required: true
     }
@@ -16,9 +16,9 @@ const props = defineProps({ //menerima stories sebagai properti dari parent comp
 const bookmarkedStories = ref([]);
 const token = useCookie('token').value;
 
-const handleBookmarkClick = (storyId) => { //Jika pengguna belum login (token tidak ada)
+const handleBookmarkClick = (storyId) => {
     if (!token) {
-        alert('You need to log in to toggle a bookmark.'); //Jika user tidak mendapatkan token 
+        alert('You need to log in to toggle a bookmark.');
         return;
     }
     toggleBookmark(storyId);
@@ -32,10 +32,10 @@ onMounted(() => {
     }
 });
 
-const toggleBookmark = async (storyId) => { //Jika pengguna sudah login, fungsi toggleBookmark(storyId) dipanggil
+const toggleBookmark = async (storyId) => {
     try {
         const token = useCookie('token').value;
-        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, { //Jika user memiliki token, mengirim request HTTP POST ke backend menggunakan $fetch
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -63,12 +63,12 @@ const toggleBookmark = async (storyId) => { //Jika pengguna sudah login, fungsi 
 };
 
 // Fungsi untuk mendapatkan URL gambar
-const getImageUrl = (image) => { //Jika image.url tidak dimulai dengan http, maka gambar berasal dari penyimpanan backend (storage/)
+const getImageUrl = (image) => {
     const imagePath = image && typeof image === 'object' ? image.url : '';
     if (imagePath && !imagePath.startsWith('http')) {
         return `${apiUrl}/storage/${imagePath}`;
     }
-    return imagePath || userIconSvg; //Jika tidak ada gambar, digunakan ikon default userIconSvg
+    return imagePath || userIconSvg;
 };
 
 // Fungsi untuk memformat tanggal
@@ -115,11 +115,11 @@ const formatDate = (dateString) => {
                 </div>
 
                 <div>
-                    <h3 class="text-lg md:text-2xl font-bold text-black mt-2 truncate transition duration-300 group-hover:text-[#466543]">
+                    <h3
+                        class="text-lg md:text-2xl font-bold text-black mt-2 truncate transition duration-300 group-hover:text-[#466543]">
                         {{ story.title }}
                     </h3>
-                    <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3">
-                        {{ story.preview_content }}
+                    <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3" v-html="story.preview_content">
                     </p>
                     <div class="flex items-center justify-between mt-4 text-sm">
                         <div class="flex items-center gap-2">
@@ -136,7 +136,7 @@ const formatDate = (dateString) => {
             <!-- Card 2 & 3 -->
             <div>
                 <div v-for="(story, index) in stories.slice(1, 3)" :key="index"
-                    class="rounded-lg overflow-hidden group mb-6">
+                    class="rounded-lg overflow-hidden group mb-12">
                     <div class="relative inline-block">
                         <NuxtLink :to="`/detail/${story.id}`">
                             <img :src="getImageUrl(story.content_images[0])" :alt="story.title"
@@ -163,10 +163,11 @@ const formatDate = (dateString) => {
                     </div>
 
                     <div>
-                        <h3 class="text-lg font-bold text-black mt-2 truncate transition duration-300 group-hover:text-[#466543]">
+                        <h3
+                            class="text-lg font-bold text-black mt-2 truncate transition duration-300 group-hover:text-[#466543]">
                             {{ story.title }}</h3>
-                        <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3">
-                            {{ story.preview_content }}
+                        <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3"
+                            v-html="story.preview_content">
                         </p>
                         <div class="flex items-center justify-between text-sm">
                             <div class="flex items-center gap-2">

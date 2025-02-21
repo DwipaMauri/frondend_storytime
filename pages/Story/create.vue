@@ -9,14 +9,16 @@ const apiUrl = config.public.apiBase;
 const title = ref('');
 const content = ref('');
 const categoryId = ref('');
-const coverImage = ref(null);
-const imagePreview = ref(null);
 const fileInput = ref(null);
+
+// Ubah coverImage & imagePreview jadi array
+const imagePreviews = ref([]);
 const contentImages = ref([]);
+
 const categories = ref([]);
 const errors = ref({});
 const isLoading = ref(false);
-const stories = ref([]); // Tambahkan deklarasi variabel ini
+const stories = ref([]);
 const router = useRouter();
 
 // Function to trigger file input
@@ -25,36 +27,38 @@ const triggerFileInput = () => {
 };
 
 const handleFileChange = (event) => {
-    const files = Array.from(event.target.files); // Ambil semua file yang dipilih
+    const files = Array.from(event.target.files);
+    if (files.length > 3) {
+        alert('You cannot upload more than 3 images.');
+        return;
+    }
+
     if (files.length > 0) {
-        contentImages.value = []; // Kosongkan array sebelum menambahkan gambar baru
+        // Kosongkan dulu array
+        imagePreviews.value = [];
+        contentImages.value = [];
 
         files.forEach((file) => {
             const reader = new FileReader();
             reader.onload = (e) => {
-                imagePreview.value = e.target.result; // Tampilkan preview cover image pertama
-                contentImages.value.push(file); // Tambahkan file ke daftar contentImages
+                // Tambahkan hasil pembacaan ke array pratinjau
+                imagePreviews.value.push(e.target.result);
             };
             reader.readAsDataURL(file);
-        });
 
-        coverImage.value = files[0]; // Set cover image pertama
+            // Simpan file asli untuk di-upload
+            contentImages.value.push(file);
+        });
     }
 };
 
-// Remove selected image
-const removeImage = () => {
-    imagePreview.value = null;
-    coverImage.value = null;
-    if (fileInput.value) fileInput.value.value = '';
+// Fungsi hapus gambar tertentu dari daftar sebelum dikirim ke backend
+const removeImage = (index) => {
+    imagePreviews.value.splice(index, 1);
+    contentImages.value.splice(index, 1);
 };
 
-// Handle additional content images
-const handleContentImageUpload = (event) => {
-    contentImages.value = Array.from(event.target.files);
-};
-
-// Fetch stories on mount
+// Mengambil daftar kategori dan story dari backend
 onMounted(async () => {
     try {
         const responseStories = await $fetch(`${apiUrl}/api/stories`);
@@ -67,58 +71,59 @@ onMounted(async () => {
 });
 
 const createStory = async () => {
-    errors.value = {};
+    errors.value = {}; //Mengosongkan error agar tidak ada sisa pesan error dari percobaan sebelumnya
 
-    // Validation
+    //Sebelum mengirim data ke backend
     if (!title.value.trim()) errors.value.title = 'Title is required';
     if (!content.value.trim()) errors.value.content = 'Content is required';
     if (!categoryId.value) errors.value.category = 'Category is required';
 
-    if (Object.keys(errors.value).length > 0) return;
+    // Misalnya mewajibkan minimal 1 gambar
+    if (contentImages.value.length === 0) {
+        errors.value.cover_image = 'At least 1 image is required';
+    }
 
+    if (Object.keys(errors.value).length > 0) return; //Jika ada error, proses akan dihentikan 
+
+    //Data dikemas dalam FormData untuk mendukung pengiriman data
     const formData = new FormData();
     formData.append('title', title.value);
     formData.append('content', content.value);
     formData.append('category_id', categoryId.value);
 
-    // Tambahkan cover image ke FormData
-    if (coverImage.value) {
-        formData.append('cover_image', coverImage.value);
-    }
-
-    // Tambahkan content images ke FormData
+    // Upload semua gambar ke formData
     contentImages.value.forEach((image, index) => {
-        formData.append(`content_images[${index}]`, image);
+        formData.append(`content_images[${index}]`, image); //Menambahkan semua gambar yang dipilih
     });
 
     // Debugging FormData
     for (let pair of formData.entries()) {
         console.log(`${pair[0]}:`, pair[1]);
-    }
+    } //Mencetak isi formData ke console untuk memastikan data yang dikirim benar
 
-    isLoading.value = true;
+    isLoading.value = true; //Proses sedang berlangsung 
     try {
         const response = await $fetch(`${apiUrl}/api/stories`, {
-            method: 'POST',
+            method: 'POST', //Mengirim data ke backend melalui API 
             body: formData,
             headers: {
                 'Authorization': `Bearer ${useCookie('token').value}`,
-            },
+            }, //Menyertakan token autentikasi dalam header agar backend tahu siapa yang mengunggah
         });
 
         console.log('Story created:', response);
-        alert('Story created successfully!');
+        alert('Story created successfully!'); //Jika berhasil, maka akan diarahkan ke halaman profile
         router.push('/profile');
-    } catch (error) {
+    } catch (error) { //Jika error berasal dari backend (error.data.errors), pesan error dari backend ditampilkan ke pengguna
         console.error('Story creation failed:', error);
         if (error.data && error.data.errors) {
-            errors.value = error.data.errors; // Tangkap pesan error dari API
+            errors.value = error.data.errors;
         } else {
-            alert('Failed to create story. Please try again.');
+            alert('Failed to create story. Please try again.'); //Jika tidak ada pesan, tampilkan secara umum 
         }
     } finally {
         isLoading.value = false;
-    }
+    } //Setelah proses selesai (baik sukses maupun gagal), isLoading dikembalikan ke false agar UI tidak terus menampilkan status "Posting..."
 };
 </script>
 
@@ -169,12 +174,12 @@ const createStory = async () => {
             </div>
 
             <!-- Cover Image Upload -->
-            <div class="mb-6" style="margin-right: 850px">
+            <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-4">Cover Image</label>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg h-80 w-full flex items-center justify-center cursor-pointer relative"
+                <div class="border-2 border-dashed border-gray-300 rounded-lg h-60 w-3/5 max-w-3xl flex items-center justify-center cursor-pointer relative"
                     @click="triggerFileInput">
-                    <!-- No image uploaded -->
-                    <div v-if="!imagePreview" class="flex flex-col items-center">
+                    <!-- Jika belum ada gambar yang diunggah -->
+                    <div v-if="imagePreviews.length === 0" class="flex flex-col items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 mb-2" viewBox="0 0 20 20"
                             fill="currentColor">
                             <path fill-rule="evenodd"
@@ -184,26 +189,31 @@ const createStory = async () => {
                         <p class="text-sm text-gray-500">Choose image</p>
                     </div>
 
-                    <!-- Image uploaded -->
-                    <div v-else class="absolute top-0 left-0 w-full h-full">
-                        <img :src="imagePreview" alt="Cover Image Preview"
-                            class="w-full h-full object-cover rounded-lg" />
-                        <!-- Remove image button -->
-                        <button @click.stop="removeImage"
-                            class="absolute top-2 right-2 bg-[#466543] text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-lime-900">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M6.707 4.293a1 1 0 00-1.414 1.414L8.586 9l-3.293 3.293a1 1 0 001.414 1.414L10 10.414l3.293 3.293a1 1 0 001.414-1.414L11.414 9l3.293-3.293a1 1 0 00-1.414-1.414L10 7.586 6.707 4.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
+                    <!-- Jika sudah ada gambar yang diunggah -->
+                    <div v-else class="absolute top-0 left-0 h-full grid grid-cols-3 gap-4">
+                        <div v-for="(preview, index) in imagePreviews" :key="index" class="relative h-56">
+                            <img :src="preview" alt="Cover Image Preview" class="w-full h-60 object-cover rounded-lg" />
+                            <!-- Tombol hapus -->
+                            <button @click.stop="removeImage(index)"
+                                class="absolute top-2 right-2 bg-[#466543] text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-lime-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M6.707 4.293a1 1 0 00-1.414 1.414L8.586 9l-3.293 3.293a1 1 0 001.414 1.414L10 10.414l3.293 3.293a1 1 0 001.414-1.414L11.414 9l3.293-3.293a1 1 0 00-1.414-1.414L10 7.586 6.707 4.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Hidden file input -->
                     <input type="file" multiple @change="handleFileChange" ref="fileInput" class="hidden"
                         accept="image/*" />
                 </div>
+                <!-- Contoh pesan error jika butuh -->
+                <p v-if="errors.imagePreviews" class="text-red-500 text-sm mt-1">
+                    {{ errors.imagePreviews }}
+                </p>
             </div>
 
             <!-- Action Buttons -->
@@ -212,7 +222,6 @@ const createStory = async () => {
                     class="px-4 py-2 border border-[#466543] text-[#466543] rounded hover:text-black hover:border-black transition duration-200">
                     Cancel
                 </a>
-
                 <button @click="createStory" :disabled="isLoading"
                     class="bg-[#466543] hover:bg-lime-900 text-white py-2 px-4 rounded-lg">
                     <span v-if="isLoading">Posting...</span>

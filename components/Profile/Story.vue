@@ -3,13 +3,13 @@
 const userIconSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='currentColor' d='M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4'/></svg>`;
 
 // API Call
-const config = useRuntimeConfig(); // Get the runtime config
-const apiUrl = config.public.apiBase; // Access the API base URL
+const config = useRuntimeConfig(); 
+const apiUrl = config.public.apiBase; 
 const token = useCookie("token").value;
 
-// Define the prop as 'userStories'
+//mendefinisikan properti (props) yang diterima oleh komponen
 const props = defineProps({
-    userStories: {
+    userStories: { 
         type: Array,
         required: true,
     },
@@ -37,11 +37,11 @@ const isLoading = ref(false);
 const deleteStory = async () => {
     if (!storyToDelete.value) return;
 
-    isLoading.value = true; // Mulai loading
+    isLoading.value = true; // Loading start
     try {
         // Delete API call
         const response = await $fetch(`${apiUrl}/api/stories/${storyToDelete.value.id}`, {
-            method: "DELETE",
+            method: "DELETE", 
             headers: {
                 Authorization: `Bearer ${useCookie('token').value}`,
             },
@@ -60,7 +60,7 @@ const deleteStory = async () => {
             alert("Failed to delete story.");
         }
     } catch (error) {
-        console.error("Error:", error.message || error);
+        console.error("Error:", error.message || error); 
         alert("An error occurred. Please try again.");
     } finally {
         isLoading.value = false; // Hentikan loading
@@ -75,7 +75,7 @@ const getImageUrl = (image) => {
         // Check if imagePath is relative and build full URL
         return `${apiUrl}/storage/${imagePath}`;
     }
-    return imagePath || userIconSvg; // Fallback to the default icon
+    return imagePath || userIconSvg; 
 };
 
 // Function to format the date
@@ -89,18 +89,18 @@ const formatDate = (dateString) => {
     });
 };
 
-// Create a ref for bookmark State
+// Create a ref for bookmark State dari API dan menyimpannya di bookmarkStates
 const bookmarkStates = ref({});
 
 const fetchBookmarkStatus = async () => {
-    if (!token) return; // dont fetch if user not Logged in or token expired.
+    if (!token) return; 
     try {
         const bookmarkResponse = await $fetch(`${apiUrl}/api/bookmarks`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }
         });
-        const bookmarkedIds = new Set(bookmarkResponse.data.map(story => story.id));
+        const bookmarkedIds = new Set(bookmarkResponse.data.map(story => story.id)); 
 
         const newBookmarkStates = {};
         props.userStories.forEach(story => {
@@ -121,7 +121,7 @@ watch(() => props.userStories, (newStories) => {
 
 onMounted(async () => {
     // console.log("component mounted...................")
-    await nextTick();
+    await nextTick(); //memastikan semua data siap sebelum diproses
     fetchBookmarkStatus();
 });
 
@@ -133,7 +133,7 @@ const toggleBookmark = async (story) => {
 
     if (!token) {
         alert("Session expired or not logged in. Please log in to continue.");
-        router.push("/login"); // Arahkan pengguna ke halaman login
+        router.push("/login"); 
         return;
     }
 
@@ -215,7 +215,7 @@ const toggleBookmark = async (story) => {
                 {{ story.title }}
             </h2>
             <div class="mt-4">
-                <p class="text-gray-600 text-sm flex-grow" v-if="story.preview_content" v-html="story.preview_content">
+                <p class="text-gray-600 text-sm flex-grow leading-relaxed line-clamp-3" v-if="story.preview_content" v-html="story.preview_content">
                 </p>
                 <p class="text-gray-600 text-sm flex-grow" v-else>No preview content available.</p>
             </div>

@@ -119,8 +119,7 @@ onMounted(() => {
                         class="text-lg md:text-2xl font-bold text-black mt-2 truncate transition duration-300 group-hover:text-[#466543]">
                         {{ story.title }}
                     </h3>
-                    <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3">
-                        {{ story.preview_content }}
+                    <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3" v-html="story.preview_content">
                     </p>
                     <div class="flex items-center justify-between mt-4 text-sm">
                         <div class="flex items-center gap-2">
@@ -166,8 +165,8 @@ onMounted(() => {
                         <h3
                             class="text-lg font-bold text-black mt-2 truncate transition duration-300 group-hover:text-[#466543]">
                             {{ story.title }}</h3>
-                        <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3">
-                            {{ story.preview_content }}
+                        <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3"
+                            v-html="story.preview_content">
                         </p>
                         <div class="flex items-center justify-between text-sm mt-10">
                             <div class="flex items-center gap-2">

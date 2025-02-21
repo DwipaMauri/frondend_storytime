@@ -29,17 +29,17 @@ const formatDate = (dateString) => {
 
 const fetchStories = async () => {
     try {
-        const response = await $fetch(`${apiUrl}/api/stories`, { //$fetch untuk pengelolaan data secara 
+        const response = await $fetch(`${apiUrl}/api/stories`, { 
             headers: { 'Content-Type': 'application/json' },
         });
         const storiesData = response.data || response;
         // console.log("Fetched stories:", storiesData);
 
-        similarStories.value = storiesData.filter((story) => { //Data story yang diterima, difilter berdasarkan category (story.category.id)
-            if (story.category && props.currentStory.category) { //agar hanya menampilkan story yang serupa 
+        similarStories.value = storiesData.filter((story) => { 
+            if (story.category && props.currentStory.category) { 
                 return (
                     String(story.category.id) === String(props.currentStory.category.id) &&
-                    story.id !== props.currentStory.id //Hanya untuk story yang sedang dibuka 
+                    story.id !== props.currentStory.id 
                 );
             }
             return false;
@@ -51,7 +51,7 @@ const fetchStories = async () => {
     }
 };
 
-onMounted(() => {
+onMounted(() => { 
     if (props.currentStory && props.currentStory.category) {
         fetchStories();
     } else {
@@ -59,7 +59,7 @@ onMounted(() => {
     }
 });
 
-watch( //Untuk memperbarui story saat pengguna berpindah halaman
+watch( 
     () => props.currentStory,
     (newVal) => {
         if (newVal && newVal.category) {
@@ -75,7 +75,7 @@ const bookmarkedStories = ref(new Set());
 const token = useCookie('token').value;
 
 const fetchBookmarkedStories = async () => {
-    // Ambil dari localStorage terlebih dahulu
+    // Ambil daftar story dari localStorage dan API terlebih dahulu
     const storedBookmarks = localStorage.getItem('bookmarkedStories');
     if (storedBookmarks) {
         bookmarkedStories.value = new Set(JSON.parse(storedBookmarks));
@@ -98,12 +98,12 @@ const fetchBookmarkedStories = async () => {
     }
 };
 
-const saveToLocalStorage = async () => {
+const saveToLocalStorage = async () => { 
     await nextTick();
     localStorage.setItem('bookmarkedStories', JSON.stringify(Array.from(bookmarkedStories.value)));
 };
 
-onMounted(() => {
+onMounted(() => { 
     fetchBookmarkedStories();
 });
 
@@ -117,7 +117,7 @@ const handleBookmarkClick = (storyId) => {
 
 const toggleBookmark = async (storyId) => {
     try {
-        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

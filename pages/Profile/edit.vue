@@ -24,7 +24,7 @@ const triggerFileInput = () => {
     document.getElementById('file-input').click();
 };
 
-const handleFileChange = async (event) => {
+const handleFileChange = async (event) => { //
     const file = event.target.files[0];
     if (file) {
         try {
@@ -43,18 +43,17 @@ const handleFileChange = async (event) => {
             if (response.user?.profile_image) {
                 headerRef.value.user.profile_image = response.user.profile_image;
 
-                // Preview the uploaded image
-                const reader = new FileReader();
+                const reader = new FileReader();  
                 reader.onload = (e) => {
                     profilePicture.value = e.target.result;
                 };
                 reader.readAsDataURL(file);
 
-                alert('Profile image updated successfully');
+                alert('Profile image updated successfully'); 
             }
         } catch (error) {
             console.error('Error uploading profile image:', error);
-            alert(error.data?.message || 'Failed to update profile image');
+            alert(error.data?.message || 'Failed to update profile image'); 
         }
     }
 };
@@ -63,7 +62,7 @@ const handleFileChange = async (event) => {
 const updateProfile = async () => {
     try {
         const response = await $fetch(`${apiUrl}/api/user/update-profile`, {
-            method: 'PUT',
+            method: 'PUT', 
             body: {
                 name: nameInput.value,
                 about: aboutInput.value,

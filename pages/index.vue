@@ -10,7 +10,7 @@ const userName = ref('');
 
 // Fetch stories function
 const fetchStories = async () => {
-  // console.log('Attempting to fetch from URL:', `${apiUrl}/api/stories`);
+  console.log('Attempting to fetch from URL:', `${apiUrl}/api/stories`);
   try {
     const response = await $fetch(`${apiUrl}/api/stories`, {
       headers: {
@@ -23,19 +23,6 @@ const fetchStories = async () => {
     console.error("Error fetching stories:", error);
   }
 };
-
-// Fetch stories on component mount
-// onMounted(async () => {
-//   await fetchStories();
-// });
-
-
-// onMounted(() => {
-//   const user = JSON.parse(localStorage.getItem('user'));
-//   if (user) {
-//     userName.value = user.name;
-//   }
-// });
 
 onMounted(async () => {
   // Fetch stories dari API
@@ -128,16 +115,16 @@ const handleSearch = () => {
   </div>
 
   <!-- Latest Story -->
-  <div class="px-8 py-8 mt-16">
-    <div class="flex items-center justify-between mb-6 px-4">
-      <h2 class="text-4xl font-serif font-bold text-raisin-black mb-0">
+  <div class="px-4 sm:px-8 py-8 mt-16">
+    <div class="flex items-center justify-between mb-6 px-4 sm:px-8">
+      <h2 class="text-3xl sm:text-4xl font-serif font-bold text-raisin-black mb-0">
         Latest Story
       </h2>
-      <NuxtLink to="/AllStories" class="relative flex items-center cursor-pointer text-gray-400 group">
+      <NuxtLink to="/allstories" class="relative flex items-center cursor-pointer text-gray-400 group">
         <span class="text-[15px] group-hover:text-[#466543] transition duration-300
-    after:content-[''] after:block after:w-full after:h-[1px] 
-    after:bg-current after:scale-0 hover:after:scale-100 
-    after:transition-transform after:duration-300">
+        after:content-[''] after:block after:w-full after:h-[1px] 
+        after:bg-current after:scale-0 hover:after:scale-100 
+        after:transition-transform after:duration-300">
           Explore More
         </span>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -150,28 +137,25 @@ const handleSearch = () => {
     </div>
 
     <!-- Line Separator -->
-    <div class="border-b border-gray-300 my-2 mx-4"></div>
-    <!-- Data ini ditampilkan dalam komponen -->
+    <div class="border-b border-gray-300 my-2 mx-4 sm:mx-8"></div>
     <!-- Story Card Latest Story -->
     <div class="px-4 py-4">
-      <!-- Latest Story -->
       <LatestStory :stories="stories" />
     </div>
   </div>
 
   <!-- Comedy Category -->
-  <div class="px-2 py-8">
-    <div class="px-10 mt-6">
+  <div class="px-4 py-8">
+    <div class="px-4 sm:px-8 mt-6">
       <div class="flex items-center justify-between">
-        <h3 class="text-4xl font-serif font-bold text-raisin black">
+        <h3 class="text-3xl sm:text-4xl font-serif font-bold text-raisin-black">
           Comedy
         </h3>
-        <!-- <div class="flex items-center cursor-pointer hover:text-black"> -->
         <NuxtLink to="/Categories/Comedy" class="relative flex items-center cursor-pointer text-gray-400 group">
           <span class="text-[15px] group-hover:text-[#466543] transition duration-300
-    after:content-[''] after:block after:w-full after:h-[1px] 
-    after:bg-current after:scale-0 hover:after:scale-100 
-    after:transition-transform after:duration-300">
+          after:content-[''] after:block after:w-full after:h-[1px] 
+          after:bg-current after:scale-0 hover:after:scale-100 
+          after:transition-transform after:duration-300">
             Explore More
           </span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -181,29 +165,25 @@ const handleSearch = () => {
             <path d="M14 6l6 6-6 6"></path>
           </svg>
         </NuxtLink>
-        <!-- </div> -->
       </div>
 
-      <!-- Line Separator -->
-      <div class="border-b border-gray-300 mt-6"></div>
+      <!-- Border -->
+      <div class="border-b border-gray-300 mt-6 mx-4 sm:mx-0"></div>
     </div>
-    <!-- Card Comedy -->
+    <!-- Story Comedy -->
     <MainComedy :stories="comedyStories" />
   </div>
 
   <!-- Romance Category -->
   <div>
     <div class="py-2">
-      <div class="flex items-center justify-between px-12">
-        <h3 class="text-4xl font-serif font-bold text-raisin-black">
+      <div class="flex items-center justify-between px-4 sm:px-14">
+        <h3 class="text-3xl sm:text-4xl font-serif font-bold text-raisin-black">
           Romance
         </h3>
-        <!-- <div class="flex items-center cursor-pointer hover:text-black"> -->
         <NuxtLink to="/Categories/Romance" class="relative flex items-center cursor-pointer text-gray-400 group">
-          <span class="text-[15px] group-hover:text-[#466543] transition duration-300
-    after:content-[''] after:block after:w-full after:h-[1px] 
-    after:bg-current after:scale-0 hover:after:scale-100 
-    after:transition-transform after:duration-300">
+          <span
+            class="text-[15px] group-hover:text-[#466543] transition duration-300 after:content-[''] after:block after:w-full after:h-[1px] after:bg-current after:scale-0 hover:after:scale-100 after:transition-transform after:duration-300">
             Explore More
           </span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -213,29 +193,26 @@ const handleSearch = () => {
             <path d="M14 6l6 6-6 6"></path>
           </svg>
         </NuxtLink>
-        <!-- </div> -->
       </div>
     </div>
-    <!-- Line Separator using border-b -->
-    <div class="px-12">
+    <!-- Border -->
+    <div class="px-4 sm:px-12">
       <div class="border-b border-gray-300 my-8"></div>
     </div>
     <!-- Card Romance -->
     <MainRomance :stories="romanceStories" />
   </div>
 
-  <!-- Horror Category -->
+  <!-- Story Horror -->
   <div class="py-8">
-    <div class="px-12 mt-8">
+    <div class="px-4 sm:px-12 mt-8">
       <div class="flex items-center justify-between">
-        <h3 class="text-4xl font-serif font-bold text-raisin black">
+        <h3 class="text-3xl sm:text-4xl font-serif font-bold text-raisin-black">
           Horror
         </h3>
         <NuxtLink to="/Categories/Horror" class="relative flex items-center cursor-pointer text-gray-400 group">
-          <span class="text-[15px] group-hover:text-[#466543] transition duration-300
-    after:content-[''] after:block after:w-full after:h-[1px] 
-    after:bg-current after:scale-0 hover:after:scale-100 
-    after:transition-transform after:duration-300">
+          <span
+            class="text-[15px] group-hover:text-[#466543] transition duration-300 after:content-[''] after:block after:w-full after:h-[1px] after:bg-current after:scale-0 hover:after:scale-100 after:transition-transform after:duration-300">
             Explore More
           </span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -247,81 +224,151 @@ const handleSearch = () => {
         </NuxtLink>
       </div>
 
-      <!-- Line Separator -->
+      <!-- Border -->
       <div class="border-b border-gray-300 w-full mt-8"></div>
     </div>
-    <!-- Card Horror -->
+    <!-- Story Horror -->
     <MainHorror :stories="horrorStories" />
   </div>
 
   <div class="bg-white">
     <!-- Judul -->
     <h2 class="text-2xl font-semibold mb-6 mx-12 sm:ml-12">More Categories</h2>
-    <hr class="border-t border-gray-200 mb-8 mx-12 sm:ml-12" /> <!-- Ganti ml-10 dengan mx-12 -->
+    <hr class="border-t border-gray-200 mb-8 mx-12 sm:ml-12" />
 
     <!-- Grid Kategori -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 mx-12">
-      <NuxtLink to="/Categories/Comedy"
-        class="bg-[#F0F5ED] text-center text-[#466543] py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40"
-        onmouseover="this.style.backgroundColor='#DCEEDD'; this.style.color='black';"
-        onmouseout="this.style.backgroundColor='rgb(240, 253, 244)'; this.style.color='#466543';">
-        Comedy
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 mx-4 sm:mx-12">
+      <NuxtLink to="/Categories/Mystery"
+        class="bg-[#F0F5ED] hover:bg-[#DCEEDD] text-center text-[#466543] hover:text-black py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40">
+        Mystery
       </NuxtLink>
 
-      <NuxtLink to="/Categories/Romance"
-        class="bg-[#F0F5ED] text-center text-[#466543] py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40"
-        onmouseover="this.style.backgroundColor='#DCEEDD'; this.style.color='black';"
-        onmouseout="this.style.backgroundColor='rgb(240, 253, 244)'; this.style.color='#466543';">
-        Romance
-      </NuxtLink>
-      <NuxtLink to="/Categories/Horror"
-        class="bg-[#F0F5ED] text-center text-[#466543] py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40"
-        onmouseover="this.style.backgroundColor='#DCEEDD'; this.style.color='black';"
-        onmouseout="this.style.backgroundColor='rgb(240, 253, 244)'; this.style.color='#466543';">
-        Horror
-      </NuxtLink>
       <NuxtLink to="/Categories/Adventure"
-        class="bg-[#F0F5ED] text-center text-[#466543] py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40"
-        onmouseover="this.style.backgroundColor='#DCEEDD'; this.style.color='black';"
-        onmouseout="this.style.backgroundColor='rgb(240, 253, 244)'; this.style.color='#466543';">
+        class="bg-[#F0F5ED] hover:bg-[#DCEEDD] text-center text-[#466543] hover:text-black py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40">
         Adventure
       </NuxtLink>
+
       <NuxtLink to="/Categories/Fiction"
-        class="bg-[#F0F5ED] text-center text-[#466543] py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40"
-        onmouseover="this.style.backgroundColor='#DCEEDD'; this.style.color='black';"
-        onmouseout="this.style.backgroundColor='rgb(240, 253, 244)'; this.style.color='#466543';">
+        class="bg-[#F0F5ED] hover:bg-[#DCEEDD] text-center text-[#466543] hover:text-black py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40">
         Fiction
       </NuxtLink>
+
       <NuxtLink to="/Categories/Fantasy"
-        class="bg-[#F0F5ED] text-center text-[#466543] py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40"
-        onmouseover="this.style.backgroundColor='#DCEEDD'; this.style.color='black';"
-        onmouseout="this.style.backgroundColor='rgb(240, 253, 244)'; this.style.color='#466543';">
+        class="bg-[#F0F5ED] hover:bg-[#DCEEDD] text-center text-[#466543] hover:text-black py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40">
         Fantasy
       </NuxtLink>
+
       <NuxtLink to="/Categories/Drama"
-        class="bg-[#F0F5ED] text-center text-[#466543] py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40"
-        onmouseover="this.style.backgroundColor='#DCEEDD'; this.style.color='black';"
-        onmouseout="this.style.backgroundColor='rgb(240, 253, 244)'; this.style.color='#466543';">
+        class="bg-[#F0F5ED] hover:bg-[#DCEEDD] text-center text-[#466543] hover:text-black py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40">
         Drama
+      </NuxtLink>
+
+      <NuxtLink to="/Categories/Heartfelt"
+        class="bg-[#F0F5ED] hover:bg-[#DCEEDD] text-center text-[#466543] hover:text-black py-8 px-6 rounded-md transition-all duration-700 transform hover:scale-105 cursor-pointer w-40">
+        Heartfelt
       </NuxtLink>
     </div>
   </div>
 
   <!-- Footer -->
-  <div class="mt-8 border-t border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center px-4 sm:px-12">
-    <div class="ml-12">
+  <div class="mt-8 border-t border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center px-4 sm:px-4">
+    <div class="ml-8 h-10">
       <p>© 2024 PT. Timedoor Indonesia. All rights reserved.</p>
     </div>
-    <div class="flex space-x-4 sm:space-x-6 lg:space-x-8" style="margin-right: 50px">
-      <div>
-        <img src="public/img/Icon Social Media.png" alt="Facebook" class="w-6 h-6" />
-      </div>
-      <div>
-        <img src="public/img/Icon Social Media (1).png" alt="Instagram" class="w-6 h-6" />
-      </div>
-      <div>
-        <img src="public/img/Icon Social Media (2).png" alt="YouTube" class="w-8 h-6" />
-      </div>
+    <div class="flex space-x-4" style="margin-right: 2rem;">
+      <!-- Facebook -->
+      <a href="#" target="_blank" class="social-icon">
+        <div class="icon-container-facebook">
+          <svg xmlns="http://www.w3.org/2000/svg" width="96" height="70" viewBox="0 0 70 70" fill="white"
+            class="facebook-icon">
+            <rect width="70" height="70" rx="10" ry="10" fill="black" />
+            <path
+              d="M39 21h-6c-2 0-4 2-4 4v5h-5v8h5v19h9V38h6l1-8h-7v-4c0-1 1-2 2-2h5v-8h-6c-6 0-10 4-10 10v4h-5v8h5v19h9V38h6l1-8h-7v-5c0-1 1-2 2-2h5v-8z"
+              fill="white" />
+          </svg>
+        </div>
+      </a>
+
+      <!-- Instagram -->
+      <a href="https://www.instagram.com/ayudwiipa" target="_blank" class="social-icon">
+        <div class="icon-container-instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" width="42" height="47" viewBox="0 0 24 24" class="instagram-icon">
+            <rect width="24" height="24" rx="5" ry="5" fill="black" />
+            <circle cx="12" cy="12" r="5" stroke="white" stroke-width="2" fill="none" />
+            <circle cx="17.5" cy="6.5" r="1.5" fill="white" />
+          </svg>
+        </div>
+      </a>
+
+      <!-- YouTube -->
+      <a href="#" target="_blank" class="social-icon">
+        <div class="icon-container-youtube">
+          <svg xmlns="http://www.w3.org/2000/svg" width="74" height="54" viewBox="0 0 74 54" fill="white"
+            class="youtube-icon">
+            <rect width="74" height="54" rx="12" ry="12" fill="black" />
+            <polygon points="28,16 50,27 28,38" fill="white" />
+          </svg>
+        </div>
+      </a>
     </div>
   </div>
 </template>
+
+<style scoped>
+.icon-container-facebook {
+  @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+}
+
+.icon-container-facebook {
+  @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.icon-container-facebook:hover {
+  background-color: #3B4F3A;
+  transform: scale(1.1);
+}
+
+.icon-container-facebook:hover .facebook-icon rect {
+  fill: #3B4F3A;
+}
+
+.icon-container-instagram {
+  @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.icon-container-instagram:hover {
+  background-color: #3B4F3A;
+  transform: scale(1.1);
+}
+
+.icon-container-instagram:hover .instagram-icon rect {
+  fill: #3B4F3A;
+}
+
+.icon-container-youtube {
+  @apply w-10 h-8 flex items-center justify-center bg-black rounded-lg;
+}
+
+.icon-container-youtube:hover {
+  background-color: #3B4F3A;
+  transform: scale(1.1);
+}
+
+.icon-container-youtube:hover .youtube-icon rect {
+  fill: #3B4F3A;
+}
+
+.social-icon {
+  @apply transition-transform transform hover:scale-110;
+}
+</style>

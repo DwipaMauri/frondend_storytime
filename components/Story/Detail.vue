@@ -18,9 +18,9 @@ const isBookmarked = computed(() => bookmarkedStories.value.has(props.storiesId.
 
 // Fetch initial bookmark status
 const fetchBookmarkedStories = async () => {
-    if (!token) return; 
+    if (!token) return;
     try {
-        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, { //Mengambil daftar cerita yang telah dibookmark oleh pengguna
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -46,7 +46,7 @@ const toggleBookmark = async (storyId) => {
     }
 
     try {
-        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, { //Untuk menambah atau menghapus story dari bookmark pengguna
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -239,36 +239,118 @@ const nextImage = () => (currentIndex.value = (currentIndex.value + 1) % props.s
 
             <!-- Bagian Konten Teks -->
             <div class="col-span-2 px-6 rounded-lg">
-                <div class="text-gray-800 leading-7">
-                    {{ storiesId.content }}
-                </div>
+                <div class="text-gray-800 leading-7" v-html="storiesId.content"></div>
+                <!-- {{ storiesId.content }} -->
             </div>
         </div>
 
-        <!-- Komponen Similar Stories: Memfilter cerita berdasarkan kategori yang sama -->
         <SimilarStories :currentStory="storiesId" />
+    </div>
 
-        <!-- Footer -->
-        <div class="mt-8 border-t border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center">
-            <div class="ml-12">
-                <p>© 2024 PT. Timedoor Indonesia. All rights reserved.</p>
-            </div>
-            <div class="flex space-x-4" style="margin-right: 50px">
-                <div>
-                    <img src="public/img/Icon Social Media.png" alt="Facebook" class="w-6 h-6" />
+    <!-- Footer -->
+    <div
+        class="mt-8 border-t border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center px-4 sm:px-4">
+        <div class="ml-8 h-10">
+            <p>© 2024 PT. Timedoor Indonesia. All rights reserved.</p>
+        </div>
+        <div class="flex space-x-4" style="margin-right: 2rem;">
+            <!-- Facebook -->
+            <a href="#" target="_blank" class="social-icon">
+                <div class="icon-container-facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="70" viewBox="0 0 70 70" fill="white"
+                        class="facebook-icon">
+                        <rect width="70" height="70" rx="10" ry="10" fill="black" />
+                        <path
+                            d="M39 21h-6c-2 0-4 2-4 4v5h-5v8h5v19h9V38h6l1-8h-7v-4c0-1 1-2 2-2h5v-8h-6c-6 0-10 4-10 10v4h-5v8h5v19h9V38h6l1-8h-7v-5c0-1 1-2 2-2h5v-8z"
+                            fill="white" />
+                    </svg>
                 </div>
-                <div>
-                    <img src="public/img/Icon Social Media (1).png" alt="Instagram" class="w-6 h-6" />
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/ayudwiipa" target="_blank" class="social-icon">
+                <div class="icon-container-instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="42" height="47" viewBox="0 0 24 24"
+                        class="instagram-icon">
+                        <rect width="24" height="24" rx="5" ry="5" fill="black" />
+                        <circle cx="12" cy="12" r="5" stroke="white" stroke-width="2" fill="none" />
+                        <circle cx="17.5" cy="6.5" r="1.5" fill="white" />
+                    </svg>
                 </div>
-                <div>
-                    <img src="public/img/Icon Social Media (2).png" alt="YouTube" class="w-8 h-6" />
+            </a>
+
+            <!-- YouTube -->
+            <a href="#" target="_blank" class="social-icon">
+                <div class="icon-container-youtube">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="74" height="54" viewBox="0 0 74 54" fill="white"
+                        class="youtube-icon">
+                        <rect width="74" height="54" rx="12" ry="12" fill="black" />
+                        <polygon points="28,16 50,27 28,38" fill="white" />
+                    </svg>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 </template>
 
 <style scoped>
+.icon-container-facebook {
+    @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+}
+
+.icon-container-facebook {
+    @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.icon-container-facebook:hover {
+    background-color: #3B4F3A;
+    transform: scale(1.1);
+}
+
+.icon-container-facebook:hover .facebook-icon rect {
+    fill: #3B4F3A;
+}
+
+.icon-container-instagram {
+    @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.icon-container-instagram:hover {
+    background-color: #3B4F3A;
+    transform: scale(1.1);
+}
+
+.icon-container-instagram:hover .instagram-icon rect {
+    fill: #3B4F3A;
+}
+
+.icon-container-youtube {
+    @apply w-10 h-8 flex items-center justify-center bg-black rounded-lg;
+}
+
+.icon-container-youtube:hover {
+    background-color: #3B4F3A;
+    transform: scale(1.1);
+}
+
+.icon-container-youtube:hover .youtube-icon rect {
+    fill: #3B4F3A;
+}
+
+.social-icon {
+    @apply transition-transform transform hover:scale-110;
+}
+
 .smooth-transition {
     transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
 }

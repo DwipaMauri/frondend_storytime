@@ -19,7 +19,7 @@ const token = useCookie('token').value;
 
 // Ambil daftar bookmark dari API dan localStorage
 const fetchBookmarkedStories = async () => {
-    // Load dari localStorage terlebih dahulu
+    // Load dari localStorage 
     const storedBookmarks = localStorage.getItem('bookmarkedStories');
     if (storedBookmarks) {
         bookmarkedStories.value = new Set(JSON.parse(storedBookmarks));
@@ -28,7 +28,7 @@ const fetchBookmarkedStories = async () => {
     if (!token) return;
 
     try {
-        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, { //Mendapatkan daftar cerita yang telah di-bookmark oleh pengguna
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
             method: 'GET',
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -50,7 +50,7 @@ const saveToLocalStorage = async () => {
 
 // Ambil daftar bookmark saat komponen dipasang
 onMounted(() => {
-    fetchBookmarkedStories(); 
+    fetchBookmarkedStories();
 });
 
 // Handle klik bookmark
@@ -118,13 +118,13 @@ const formatDate = (dateString) => {
     </div>
 
     <div v-else class="overflow-x-auto scrollbar-hide whitespace-nowrap">
-        <div class="flex gap-4">
+        <div class="flex gap-6">
             <div v-for="story in stories.slice(0, 6)" :key="story.id"
                 class="min-w-[420px] max-w-[500px] overflow-hidden flex-shrink-0 rounded-lg group transition duration-300">
                 <div class="relative">
                     <nuxt-link :to="`/detail/${story.id}`">
                         <img :src="getImageUrl(story.content_images[0])" alt="Story Image"
-                            class="w-[700px] h-[530px] object-cover transition-opacity duration-300 rounded-t-lg group-hover:opacity-75" />
+                            class="w-[700px] h-[530px] object-cover transition-opacity duration-300 rounded-t-lg group-hover:opacity-75 mt-2" />
                     </nuxt-link>
 
                     <button @click="handleBookmarkClick(story.id)"
@@ -148,8 +148,8 @@ const formatDate = (dateString) => {
                         class="text-lg font-semibold text-gray-800 truncate transition duration-300 group-hover:text-[#466543]">
                         {{ story.title }}
                     </h3>
-                    <p class="text-sm text-gray-600 mt-3 leading-relaxed line-clamp-3 transition duration-300">
-                        {{ story.preview_content }}
+                    <p class="text-sm text-gray-600 mt-3 leading-relaxed line-clamp-3 transition duration-300"
+                        v-text="story.preview_content" v-html="story.preview_content">
                     </p>
                     <div class="flex items-center justify-between mt-4 text-sm text-[#222222] transition duration-300">
                         <div class="flex items-center gap-2">
@@ -172,3 +172,14 @@ const formatDate = (dateString) => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+</style>

@@ -15,7 +15,7 @@ const stories = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const perPage = 9;
-const bookmarkedStories = ref(new Set()); // State untuk menyimpan daftar bookmark
+const bookmarkedStories = ref(new Set());
 
 // Fetch Stories with Filters and Pagination
 const fetchStories = async () => {
@@ -71,7 +71,7 @@ const formatDate = (dateString) => {
 
 // Ambil daftar bookmark dari API dan localStorage
 const fetchBookmarkedStories = async () => {
-    // Load dari localStorage terlebih dahulu
+    // Load dari localStorage 
     const storedBookmarks = localStorage.getItem('bookmarkedStories');
     if (storedBookmarks) {
         bookmarkedStories.value = new Set(JSON.parse(storedBookmarks));
@@ -144,7 +144,7 @@ watch([searchQuery, selectedSort, selectedCategory], fetchStories);
 // Initial Fetch
 onMounted(() => {
     fetchStories();
-    fetchBookmarkedStories(); // Ambil daftar bookmark saat komponen dipasang
+    fetchBookmarkedStories();
 });
 </script>
 
@@ -207,10 +207,10 @@ onMounted(() => {
 
         <!-- Search -->
         <div class="mt-4">
-            <div class="flex items-center bg-white border border-gray-300 rounded-md px-6 py-5 lg:w-[400px] mr-20">
+            <div class="relative flex items-center bg-white rounded-md lg:w-[400px] mr-12">
                 <input v-model="searchQuery" placeholder="Search story"
-                    class="w-full text-sm text-gray-600 placeholder-gray-400 focus:outline-none cursor-text" />
-                <button class="text-gray-600">
+                    class="w-full text-sm text-gray-600 placeholder-gray-400 focus:outline-none px-6 py-5 cursor-text border border-gray-300 rounded-md pr-12" />
+                <button class="absolute right-6 text-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.386a1 1 0 01-1.414 1.415l-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z"
@@ -222,12 +222,13 @@ onMounted(() => {
     </div>
 
     <!-- Stories Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 px-12">
-        <div v-for="story in stories" :key="story.id" class="bg-white p-4 rounded-md relative">
+    <div class="grid grid-cols-1 md:grid-cols-3 px-8">
+        <div v-for="story in stories" :key="story.id"
+            class="bg-white p-4 rounded-md relative mt-8 rounded-lg group transition duration-300">
             <div class="relative">
                 <nuxt-link :to="`/detail/${story.id}`">
                     <img v-if="story.content_images" :src="getImageUrl(story.content_images[0])" alt="Story Image"
-                        class="w-full h-96 object-cover rounded-md mb-3" />
+                        class="w-full h-96 object-cover rounded-md mb-3 transition-opacity duration-300 rounded-t-lg group-hover:opacity-75" />
                 </nuxt-link>
 
                 <!-- Tombol Bookmark di atas gambar, tetapi di luar <NuxtLink> -->
@@ -248,8 +249,10 @@ onMounted(() => {
             </div>
 
             <nuxt-link :to="`/detail/${story.id}`">
-                <h3 class="font-serif text-xl font-bold text-gray-800">{{ story.title }}</h3>
-                <p class="text-gray-600 mt-2">{{ story.preview_content }}</p>
+                <h3
+                    class="font-serif text-xl font-bold text-gray-800 truncate transition duration-300 group-hover:text-[#466543]">
+                    {{ story.title }}</h3>
+                <p class="text-gray-600 mt-2" v-html="story.preview_content"></p>
             </nuxt-link>
 
             <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
@@ -269,7 +272,7 @@ onMounted(() => {
     <div class="flex justify-center mt-8 space-x-2">
         <!-- Tombol "Prev" hanya muncul jika currentPage > 1 -->
         <button v-if="currentPage > 1" @click="changePage(currentPage - 1)"
-            class="px-4 py-2 bg-[#466543] text-white hover:bg-lime-900 rounded">
+            class="px-4 py-2 bg-[#F0F5ED] text-black hover:text-white hover:bg-lime-900 rounded">
             Prev
         </button>
 
@@ -277,15 +280,118 @@ onMounted(() => {
         <button v-for="page in totalPages" :key="page" @click="changePage(page)"
             class="px-4 py-2 rounded transition-all" :class="{
                 'bg-[#466543] hover:bg-[#3B4F3A] text-white font-bold': currentPage === page,
-                'bg-[#466543] text-white hover:bg-[#3B4F3A]': currentPage !== page
+                'bg-[#F0F5ED] text-black hover:text-white hover:bg-[#3B4F3A]': currentPage !== page
             }">
             {{ page }}
         </button>
 
         <!-- Tombol "Next" hanya muncul jika belum di halaman terakhir -->
         <button v-if="currentPage < totalPages" @click="changePage(currentPage + 1)"
-            class="px-4 py-2 bg-[#466543] text-white hover:bg-[#3B4F3A] rounded">
+            class="px-4 py-2 bg-[#F0F5ED] text-black hover:text-white hover:bg-[#3B4F3A] rounded">
             Next
         </button>
     </div>
+
+    <div
+        class="mt-8 border-t border-gray-300 pt-4 text-gray-600 text-sm flex justify-between items-center px-4 sm:px-4">
+        <div class="ml-8 h-10">
+            <p>© 2024 PT. Timedoor Indonesia. All rights reserved.</p>
+        </div>
+        <div class="flex space-x-4" style="margin-right: 2rem;">
+            <!-- Facebook -->
+            <a href="#" target="_blank" class="social-icon">
+                <div class="icon-container-facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="70" viewBox="0 0 70 70" fill="white"
+                        class="facebook-icon">
+                        <rect width="70" height="70" rx="10" ry="10" fill="black" />
+                        <path
+                            d="M39 21h-6c-2 0-4 2-4 4v5h-5v8h5v19h9V38h6l1-8h-7v-4c0-1 1-2 2-2h5v-8h-6c-6 0-10 4-10 10v4h-5v8h5v19h9V38h6l1-8h-7v-5c0-1 1-2 2-2h5v-8z"
+                            fill="white" />
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/ayudwiipa" target="_blank" class="social-icon">
+                <div class="icon-container-instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="42" height="47" viewBox="0 0 24 24"
+                        class="instagram-icon">
+                        <rect width="24" height="24" rx="5" ry="5" fill="black" />
+                        <circle cx="12" cy="12" r="5" stroke="white" stroke-width="2" fill="none" />
+                        <circle cx="17.5" cy="6.5" r="1.5" fill="white" />
+                    </svg>
+                </div>
+            </a>
+
+            <!-- YouTube -->
+            <a href="#" target="_blank" class="social-icon">
+                <div class="icon-container-youtube">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="74" height="54" viewBox="0 0 74 54" fill="white"
+                        class="youtube-icon">
+                        <rect width="74" height="54" rx="12" ry="12" fill="black" />
+                        <polygon points="28,16 50,27 28,38" fill="white" />
+                    </svg>
+                </div>
+            </a>
+        </div>
+    </div>
 </template>
+
+<style scoped>
+.icon-container-facebook {
+    @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+}
+
+.icon-container-facebook {
+    @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.icon-container-facebook:hover {
+    background-color: #3B4F3A;
+    transform: scale(1.1);
+}
+
+.icon-container-facebook:hover .facebook-icon rect {
+    fill: #3B4F3A;
+}
+
+.icon-container-instagram {
+    @apply w-8 h-8 flex items-center justify-center bg-black rounded-lg;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.icon-container-instagram:hover {
+    background-color: #3B4F3A;
+    transform: scale(1.1);
+}
+
+.icon-container-instagram:hover .instagram-icon rect {
+    fill: #3B4F3A;
+}
+
+.icon-container-youtube {
+    @apply w-10 h-8 flex items-center justify-center bg-black rounded-lg;
+}
+
+.icon-container-youtube:hover {
+    background-color: #3B4F3A;
+    transform: scale(1.1);
+}
+
+.icon-container-youtube:hover .youtube-icon rect {
+    fill: #3B4F3A;
+}
+
+.social-icon {
+    @apply transition-transform transform hover:scale-110;
+}
+</style>

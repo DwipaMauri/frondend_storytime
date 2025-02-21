@@ -11,7 +11,7 @@ const props = defineProps({
 });
 
 // State untuk menyimpan daftar bookmark lokal
-const bookmarkedStories = ref([]); //array yang menyimpan daftar story_id yang telah di-bookmark oleh pengguna
+const bookmarkedStories = ref([]);
 const token = useCookie('token').value;
 
 const handleBookmarkClick = (storyId) => {
@@ -52,7 +52,7 @@ const toggleBookmark = async (storyId) => {
 };
 
 // Muat bookmarkedStories dari localStorage saat komponen di-mount
-onMounted(() => { //Ketika komponen pertama kali dimuat (onMounted), bookmark yang tersimpan di localStorage akan dimuat ke dalam bookmarkedStories
+onMounted(() => {
     const storedBookmarks = localStorage.getItem('bookmarkedStories');
     if (storedBookmarks) {
         bookmarkedStories.value = JSON.parse(storedBookmarks);
@@ -82,10 +82,9 @@ const formatDate = (dateString) => {
 };
 </script>
 
-// v-for digunakan untuk mengulang daftar cerita dan menampilkan masing-masing cerita dalam card
 <template>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-12">
-        <div v-for="(story, index) in stories.slice(0, 3)" :key="index" class="rounded-lg overflow-hidden group"> 
+        <div v-for="(story, index) in stories.slice(0, 3)" :key="index" class="rounded-lg overflow-hidden group">
             <div class="relative">
                 <NuxtLink :to="`/detail/${story.id}`">
                     <img :src="getImageUrl(story.content_images[0])" :alt="story.title"
@@ -109,9 +108,9 @@ const formatDate = (dateString) => {
             </div>
 
             <div class="mt-2">
-                <h3 class="text-lg font-bold text-black truncate transition duration-300 group-hover:text-[#466543]">{{ story.title }}</h3>
-                <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3">
-                    {{ story.preview_content }}
+                <h3 class="text-lg font-bold text-black truncate transition duration-300 group-hover:text-[#466543]">{{
+                    story.title }}</h3>
+                <p class="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-3" v-html="story.preview_content">
                 </p>
                 <div class="flex items-center justify-between mt-4 text-sm">
                     <div class="flex items-center gap-2">

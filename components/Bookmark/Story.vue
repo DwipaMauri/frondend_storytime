@@ -33,12 +33,12 @@ const fetchBookmarkedStories = async () => {
     if (!token) return;
 
     try {
-        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, { //Jika ada bookmark yang tersimpan di localStorage, itu akan dimuat dulu ke dalam state bookmarkedStories (agar cepat ditampilkan)
+        const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
             method: 'GET',
             headers: { Authorization: `Bearer ${token}` }
         });
 
-        bookmarkedStories.value = new Set(bookmarks.map(b => b.story_id)); //Backend akan mengembalikan daftar stories yang telah di-bookmark oleh pengguna
+        bookmarkedStories.value = new Set(bookmarks.map(b => b.story_id));
         saveToLocalStorage();
     } catch (error) {
         console.error('Error fetching bookmarks:', error);
@@ -55,7 +55,7 @@ onMounted(() => {
 });
 
 // Toggle Bookmark
-const handleBookmarkClick = async (storyId) => {
+const handleBookmark = async (storyId) => {
     if (!token) {
         alert('You need to log in to toggle a bookmark.');
         return;
@@ -77,7 +77,6 @@ const handleBookmarkClick = async (storyId) => {
             bookmarkedStories.value.delete(storyId);
             emit('updateBookmarks', storyId);
         }
-        // Hapus dari daftar userStories agar langsung hilang dari tampilan
         props.userStories.splice(props.userStories.findIndex(s => s.id === storyId), 1);
 
         saveToLocalStorage();
@@ -106,8 +105,8 @@ const isBookmarked = (storyId) => bookmarkedStories.value.has(storyId);
                 class="rounded-t-lg h-96 w-full group-hover:opacity-75 transition-opacity duration-300" />
         </nuxt-link>
 
-        <!-- Tombol Bookmark (DI LUAR nuxt-link) -->
-        <button @click.stop="handleBookmarkClick(story.id)"
+        <!-- Tombol Bookmark -->
+        <button @click="handleBookmark(story.id)"
             class="absolute inset-0 m-auto flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100 -translate-y-32"
             :class="isBookmarked(story.id) ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
             <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
@@ -122,8 +121,7 @@ const isBookmarked = (storyId) => bookmarkedStories.value.has(storyId);
             <h2 class="text-lg font-semibold mt-2 group-hover:text-[#466543] transition-colors duration-300">
                 {{ story.title }}
             </h2>
-            <p class="text-gray-600 text-sm flex-grow mt-3">
-                {{ story.preview_content || "No preview content available." }}
+            <p class="text-gray-600 text-sm flex-grow mt-3 leading-relaxed line-clamp-3" v-html="story.preview_content">
             </p>
             <div class="mt-5 flex justify-between items-center">
                 <span class="bg-[#F0F5ED] text-[#466543] px-3 py-1 rounded-md">

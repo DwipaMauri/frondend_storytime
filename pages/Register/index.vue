@@ -3,7 +3,7 @@
 const config = useRuntimeConfig();
 const apiUrl = config.public.apiBase;
 
-// Check authentication state on page load
+// Jika ada token dan user di cookie 
 onMounted(() => {
   const tokenCookie = useCookie("token");
   const userCookie = useCookie("user");
@@ -17,10 +17,10 @@ onMounted(() => {
   }
 });
 
-// State for registration frontend menerima data user dan token, Token dan user juga disimpan di cookie agar sesi tetap ada meskipun halaman di-refresh
+// State for registration
 const user = ref(null);
 const token = ref(null);
-const registerState = reactive({ //Data disimpan dalam state reactive
+const registerState = reactive({ 
   name: "",
   username: "",
   email: "",
@@ -45,15 +45,15 @@ const togglePasswordVisibility = (field) => {
 };
 
 // Registration handler
-const handleRegister = async () => { //Mengatur cookies untuk menyimpan data pengguna dan token
+const handleRegister = async () => { 
   // Reset previous states
-  registerState.error = ""; //Mengatur ulang error dan state loading
+  registerState.error = ""; 
   registerState.errors = {};
   registerState.isLoading = true;
 
   try {
     // API call to register
-    const response = await $fetch(`${apiUrl}/api/register`, { //Backend memiliki endpoint POST /api/register, yang menerima data pengguna yang dikirim dari frontend
+    const response = await $fetch(`${apiUrl}/api/register`, { 
       method: "POST", 
       body: {
         name: registerState.name,
@@ -73,7 +73,7 @@ const handleRegister = async () => { //Mengatur cookies untuk menyimpan data pen
 
       // Set cookies
       const userCookie = useCookie("user", {
-        maxAge: 7 * 24 * 60 * 60,
+        maxAge: 7 * 24 * 60 * 60, 
         secure: true,
         httpOnly: false,
         sameSite: "strict",
@@ -96,11 +96,11 @@ const handleRegister = async () => { //Mengatur cookies untuk menyimpan data pen
     // Handle error responses
     if (err.data && err.data.errors) {
       registerState.errors = err.data.errors;
-    }
-    registerState.error = err.data?.message || "Registration failed";
+    } 
+    registerState.error = err.data?.message || "Registration failed"; 
     console.error("Registration error:", err);
   } finally {
-    // Reset loading state
+    // Reset loading state setelah proses selesai
     registerState.isLoading = false;
   }
 };

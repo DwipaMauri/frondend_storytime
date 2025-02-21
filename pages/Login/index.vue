@@ -34,15 +34,14 @@ const togglePasswordVisibility = () => {
 // Login handler dipanggil ketika login ditekan 
 const handleLogin = async () => {
   // Reset previous state
-  loginState.error = ""; //Mengosongkan pesan error (loginState.error = "")
-  loginState.isLoading = true; //Menampilkan status loading (loginState.isLoading = true
+  loginState.error = "";
+  loginState.isLoading = true;
 
   try {
     // API call to login
-    // console.log("Url to fetch:", `${apiUrl}/api/login`);
-    // const response = await $fetch('http://localhost:8000/api/login', {
-    const response = await $fetch(`${apiUrl}/api/login`, { //Mengirim request ke backend dengan $fetch()
-      method: "POST", //Mengirim data username/email dan password ke backend
+    console.log("Url to fetch:", `${apiUrl}/api/login`);
+    const response = await $fetch(`${apiUrl}/api/login`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -56,22 +55,22 @@ const handleLogin = async () => {
     // Check if response is successful
     if (response) {
       // Set user in state
-      user.value = response.user; // Assuming user object is returned
+      user.value = response.user;
       token.value = response.token;
 
       //Menyimpan data user dan token di cookies
       const userCookie = useCookie("user", {
-        maxAge: 7 * 24 * 60 * 60, //Cookie akan bertahan selama 7 hari
-        secure: true, //Hanya dikirim melalui HTTPS
-        httpOnly: false, //Bisa diakses dari JavaScript
-        sameSite: 'Strict', //Mencegah cookie dikirim ke situs lain
+        maxAge: 7 * 24 * 60 * 60,
+        secure: true,
+        httpOnly: false,
+        sameSite: 'Strict',
       });
       const tokenCookie = useCookie("token", {
         maxAge: 7 * 24 * 60 * 60,
         secure: true,
         httpOnly: false,
         sameSite: 'Strict',
-      }); //Jika response berhasil diterima, data user dan token disimpan di cookies
+      });
 
       // Store stringified user and token
       userCookie.value = JSON.stringify(response.user);
@@ -85,7 +84,7 @@ const handleLogin = async () => {
     }
   } catch (err) {
     // Handle error from API
-    loginState.error = err.data?.message || err.message || "Login failed. Please try again."; //Jika BE mengembalikan error, error ditampilkan di halaman login
+    loginState.error = err.data?.message || err.message || "Login failed. Please try again.";
     console.error("Login error:", err);
   } finally {
     // Reset loading state

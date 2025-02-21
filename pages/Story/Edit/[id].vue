@@ -41,7 +41,7 @@ const fetchStory = async (storyId) => {
             id: img.id,
             url: img.url,
             file: null,
-            isExisting: true // Flag to mark existing images
+            isExisting: true 
         })) || [];
 
         if (storyData.cover_image_url) {
@@ -54,13 +54,13 @@ const fetchStory = async (storyId) => {
 };
 
 // Fetch categories
-const fetchCategories = async () => {
+const fetchCategories = async () => { 
     try {
         const response = await $fetch(`${apiUrl}/api/categories`, {
             headers: {
                 'Authorization': `Bearer ${useCookie('token').value}`,
-            },
-        });
+            }, 
+        }); 
         categories.value = response.data || [];
         if (!categoryId.value && categories.value.length > 0) {
             categoryId.value = categories.value[0].id;
@@ -78,9 +78,9 @@ const handleFileChange = (event) => {
 
         if (remainingSlots > 0) {
             const newImages = files.slice(0, remainingSlots).map((file) => ({
-                id: `temp-${Date.now()}-${Math.random()}`, // Temporary ID for new images
+                id: `temp-${Date.now()}-${Math.random()}`, 
                 file: file,
-                url: URL.createObjectURL(file),
+                url: URL.createObjectURL(file), 
                 isNew: true
             }));
 
@@ -131,7 +131,7 @@ const updateStory = async () => {
 
     try {
         const formData = new FormData();
-        formData.append('_method', 'PUT');
+        formData.append('_method', 'PUT'); 
         formData.append('title', title.value);
         formData.append('content', content.value);
         formData.append('category_id', categoryId.value);
@@ -187,7 +187,7 @@ onBeforeUnmount(() => {
 });
 
 // Component mounted actions
-onMounted(() => {
+onMounted(() => { 
     const storyId = router.currentRoute.value.params.id;
     if (!storyId) {
         alert('No story ID provided');
@@ -240,9 +240,6 @@ onMounted(() => {
             <!-- Content Input -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-3">Content</label>
-                <!-- <textarea v-model="content" rows="6" placeholder="Enter content here"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    :class="{ 'border-red-500': errors.content }"></textarea> -->
                 <client-only>
                     <rich-editor v-model="content" />
                 </client-only>
@@ -250,7 +247,7 @@ onMounted(() => {
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-4">Add Image</label>
+                <label class="block text-sm font-medium text-gray-700 mb-4">Cover Image</label>
                 <div class="border-2 border-dashed border-gray-300 rounded-lg h-60 w-3/5 max-w-3xl flex items-center justify-center cursor-pointer relative"
                     @click="triggerFileInput">
                     <!-- Show when no image is uploaded -->
@@ -261,7 +258,7 @@ onMounted(() => {
                                 d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm1 2h10v4l-2.5-2.5-3 3L6 8l-3 3V5a1 1 0 011-1zm0 7l2-2 3 3 2.5-2.5L15 14H5z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <p class="text-sm text-gray-500">Choose images</p>
+                        <p class="text-sm text-gray-500">Choose image</p>
                     </div>
 
                     <!-- Show uploaded image previews -->

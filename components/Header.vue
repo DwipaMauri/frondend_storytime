@@ -1,7 +1,7 @@
 <script setup>
 // API Call
-const config = useRuntimeConfig();  // Get the runtime config
-const apiUrl = config.public.apiBase; // Access the API base URL
+const config = useRuntimeConfig();
+const apiUrl = config.public.apiBase;
 
 // State
 const isDropdownOpen = ref(false);
@@ -97,7 +97,7 @@ defineExpose({ user });
 </script>
 
 <template>
-    <div class="flex justify-between items-center px-12 py-5 border-b border-gray-200 bg-white">
+    <div class="flex justify-between items-center px-4 md:px-12 py-5 border-b border-gray-200 bg-white">
         <NuxtLink to="/">
             <img src="/img/image 15.png" alt="Logo" class="h-10" />
         </NuxtLink>
@@ -107,7 +107,7 @@ defineExpose({ user });
                     <button @click="toggleDropdown"
                         class="flex items-center space-x-2 text-gray-800 hover:text-gray-600">
                         <div
-                            class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
+                            class="w-8 md:w-10 h-8 md:h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
                             <img v-if="user?.profile_image" :src="getImageUrl(user?.profile_image)" alt="User Avatar"
                                 class="w-full h-full object-cover" />
                             <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -116,14 +116,14 @@ defineExpose({ user });
                                     d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4" />
                             </svg>
                         </div>
-                        <span>{{ user?.name || "User" }}</span>
+                        <span class="text-sm md:text-base">{{ user?.name || "User" }}</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                             class="w-5 h-5 text-gray-500 ml-1">
                             <path fill="currentColor" d="M7 10l5 5 5-5z" />
                         </svg>
                     </button>
                     <div v-if="isDropdownOpen"
-                        class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
+                        class="absolute right-0 mt-2 w-40 md:w-48 bg-white border border-gray-200 rounded-md shadow-lg">
                         <ul>
                             <li>
                                 <NuxtLink to="/profile" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Profile
@@ -140,16 +140,17 @@ defineExpose({ user });
             <template v-else>
                 <NuxtLink to="/register">
                     <button
-                        class="h-10 px-4 text-[#4C6248] border border-[#4C6248] rounded-md text-sm font-medium hover:bg-[#F6F8F4]">Register</button>
+                        class="h-8 md:h-10 px-3 md:px-4 text-[#4C6248] border border-[#4C6248] rounded-md text-xs md:text-sm font-medium hover:bg-[#F6F8F4]">Register</button>
                 </NuxtLink>
                 <NuxtLink to="/login">
                     <button
-                        class="h-10 px-4 text-white bg-[#4C6248] rounded-md text-sm font-medium hover:bg-[#3B4F3A]">Login</button>
+                        class="h-8 md:h-10 px-3 md:px-4 text-white bg-[#4C6248] rounded-md text-xs md:text-sm font-medium hover:bg-[#3B4F3A]">Login</button>
                 </NuxtLink>
             </template>
         </div>
     </div>
 
+    <!-- Modal Logout -->
     <Transition name="fade">
         <div v-if="isLogoutModalOpen"
             class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
