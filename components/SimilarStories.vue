@@ -86,8 +86,7 @@ const changePage = (page) => {
                 </div>
                 <NuxtLink :to="`/detail/${story.id}`">
                     <h4 class="text-xl font-semibold mt-2">{{ story.title }}</h4>
-                    <p class="text-sm text-gray-600 mt-3 leading-relaxed line-clamp-3">
-                        {{ story.preview_content }}
+                    <p class="text-sm text-gray-600 mt-3 leading-relaxed line-clamp-3" v-html="story.preview_content">
                     </p>
                     <div class="flex items-center justify-between mt-6">
                         <div class="flex items-center gap-2">
