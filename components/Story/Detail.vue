@@ -132,7 +132,7 @@ const nextImage = () => (currentIndex.value = (currentIndex.value + 1) % props.s
                 :class="isBookmarked ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
                     <transition name="fade-scale" mode="out-in">
-                        <path v-if="bookmarkedStories.has(storiesId.id)" key="bookmarked" fill="white"
+                        <path v-if="isBookmarked" key="bookmarked" fill="white"
                             d="M6 19.5V5.616q0-.691.463-1.153T7.616 4h8.768q.691 0 1.153.463t.463 1.153V19.5l-6-2.577z" />
                         <g v-else key="not-bookmarked">
                             <path fill="white"
