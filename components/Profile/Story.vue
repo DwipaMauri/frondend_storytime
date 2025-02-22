@@ -210,11 +210,11 @@ const toggleBookmark = async (story) => {
         </div>
 
         <!-- Card Content -->
-        <div class="p-1 flex flex-col flex-grow mb-2">
+        <div class="flex flex-col flex-grow mb-2">
             <h2 class="text-lg font-semibold mt-2 group-hover:text-[#466543] transition-colors duration-300">
                 {{ story.title }}
             </h2>
-            <div class="mt-4">
+            <div class="mt-2">
                 <p class="text-gray-600 text-sm flex-grow leading-relaxed line-clamp-3" v-if="story.preview_content" v-html="story.preview_content">
                 </p>
                 <p class="text-gray-600 text-sm flex-grow" v-else>No preview content available.</p>

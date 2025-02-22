@@ -176,7 +176,7 @@ const createStory = async () => {
             <!-- Cover Image Upload -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-4">Cover Image</label>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg h-60 w-3/5 max-w-3xl flex items-center justify-center cursor-pointer relative"
+                <div class="border-2 h-60 w-3/5 max-w-3xl flex items-center justify-center cursor-pointer relative"
                     @click="triggerFileInput">
                     <!-- Jika belum ada gambar yang diunggah -->
                     <div v-if="imagePreviews.length === 0" class="flex flex-col items-center">

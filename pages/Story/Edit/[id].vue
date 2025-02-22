@@ -87,7 +87,7 @@ const handleFileChange = (event) => {
             // Combine existing images with new ones
             contentImages.value = [...contentImages.value, ...newImages];
         } else {
-            alert('Maximum of 3 images allowed');
+            alert('You cannot upload more than 3 images.');
         }
     }
 
@@ -248,7 +248,7 @@ onMounted(() => {
 
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-4">Cover Image</label>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg h-60 w-3/5 max-w-3xl flex items-center justify-center cursor-pointer relative"
+                <div class="border-2 h-60 w-3/5 max-w-3xl flex items-center justify-center cursor-pointer relative"
                     @click="triggerFileInput">
                     <!-- Show when no image is uploaded -->
                     <div v-if="!contentImages.length" class="flex flex-col items-center justify-center text-center">
