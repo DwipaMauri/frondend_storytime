@@ -9,8 +9,8 @@ const apiUrl = config.public.apiBase;
 const props = defineProps({
     stories: {
         type: Array,
-        required: true
-    }
+        required: true,
+    },
 });
 
 // State untuk menyimpan daftar bookmark
@@ -19,7 +19,7 @@ const token = useCookie('token').value;
 
 // Ambil daftar bookmark dari API dan localStorage
 const fetchBookmarkedStories = async () => {
-    // Load dari localStorage 
+    // Load dari localStorage
     const storedBookmarks = localStorage.getItem('bookmarkedStories');
     if (storedBookmarks) {
         bookmarkedStories.value = new Set(JSON.parse(storedBookmarks));
@@ -30,10 +30,10 @@ const fetchBookmarkedStories = async () => {
     try {
         const bookmarks = await $fetch(`${apiUrl}/api/bookmarks`, {
             method: 'GET',
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
         });
 
-        const apiBookmarks = new Set(bookmarks.map(b => b.story_id));
+        const apiBookmarks = new Set(bookmarks.map((b) => b.story_id));
         bookmarkedStories.value = new Set([...bookmarkedStories.value, ...apiBookmarks]);
 
         await saveToLocalStorage();
@@ -65,23 +65,28 @@ const handleBookmarkClick = (storyId) => {
 // Toggle bookmark
 const toggleBookmark = async (storyId) => {
     try {
-        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, { //Menambah atau menghapus cerita dari bookmark
+        const response = await $fetch(`${apiUrl}/api/bookmarks/toggle`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
             },
-            body: { story_id: storyId }
+            body: { story_id: storyId },
         });
 
-        if (response.is_bookmarked) {
-            bookmarkedStories.value.add(storyId);
+        console.log('API Response:', response); // Debugging
+
+        // Perbarui state berdasarkan respons API
+        if (response.bookmarked) {
+            bookmarkedStories.value.add(storyId); // Tambahkan ke daftar bookmark
         } else {
-            bookmarkedStories.value.delete(storyId);
+            bookmarkedStories.value.delete(storyId); // Hapus dari daftar bookmark
         }
 
-        await saveToLocalStorage();
-        alert(response.message);
+        console.log('Bookmarked Stories:', Array.from(bookmarkedStories.value)); // Debugging
+
+        await saveToLocalStorage(); // Simpan perubahan ke localStorage
+        alert(response.message); // Tampilkan pesan dari API
     } catch (error) {
         console.error('Error toggling bookmark:', error);
         alert(error.data?.message || 'An error occurred while toggling bookmark.');
