@@ -166,7 +166,7 @@ const formatDate = (dateString) => {
 
       <!-- Toggle Bookmark Button -->
       <button @click="toggleBookmark(story.id)"
-        class="absolute bottom-60 right-8 w-12 h-12 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-300 shadow-md"
+        class="absolute bottom-48 right-8 w-12 h-12 flex items-center justify-center rounded-full cursor-pointer transition-colors duration-300 shadow-md"
         :class="bookmarkedStories.has(story.id) ? 'bg-[#1C1C1C]' : 'bg-green-800 hover:bg-[#3B4F3A]'">
         <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
           <transition name="fade-scale" mode="out-in">
@@ -182,7 +182,7 @@ const formatDate = (dateString) => {
 
       <div class="mt-2">
         <h3 class="text-lg font-semibold mb-2">{{ story.title }}</h3>
-        <p class="text-sm text-gray-600 mb-4" v-html="story.preview_content"></p>
+        <p class="text-sm text-gray-600 leading-relaxed line-clamp-3" v-html="story.preview_content"></p>
         <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
           <div class="flex items-center gap-2">
             <img :src="story.user.profile_image" alt="Avatar" class="w-8 h-8 rounded-full" />
